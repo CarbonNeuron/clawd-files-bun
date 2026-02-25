@@ -1,14 +1,30 @@
 import { mkdir, unlink, rm } from "node:fs/promises";
 import { existsSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { dirname, join, resolve, normalize } from "node:path";
 import { filesDir } from "./config";
 
+/** Validate and resolve a user-provided path, preventing directory traversal */
+function safePath(base: string, userPath: string): string {
+  const normalized = normalize(userPath);
+  if (normalized.startsWith("..") || normalize("/" + normalized) !== "/" + normalized) {
+    throw new Error("Invalid file path");
+  }
+  const full = resolve(base, normalized);
+  const expectedPrefix = resolve(base);
+  if (!full.startsWith(expectedPrefix + "/") && full !== expectedPrefix) {
+    throw new Error("Path traversal detected");
+  }
+  return full;
+}
+
 function filePath(bucketId: string, path: string): string {
-  return join(filesDir, bucketId, path);
+  const bucketDir = resolve(filesDir, bucketId);
+  return safePath(bucketDir, path);
 }
 
 function versionPath(bucketId: string, path: string, version: number): string {
-  return join(filesDir, bucketId, ".versions", `${path}.v${version}`);
+  const versionsDir = resolve(filesDir, bucketId, ".versions");
+  return safePath(versionsDir, `${path}.v${version}`);
 }
 
 export async function writeFile(bucketId: string, path: string, data: Blob): Promise<void> {

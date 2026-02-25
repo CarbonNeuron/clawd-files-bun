@@ -139,9 +139,14 @@ export function registerFileRoutes() {
     }
 
     const mimeType = getMimeType(params.path);
-    const stat = bunFile;
-    const size = stat.size;
-    const etag = `"${Bun.hash(params.bucketId + params.path + size).toString(16)}"`;
+    const size = bunFile.size;
+
+    // Use DB sha256 for content-based ETag, fallback to path+size+mtime
+    const db = getDb();
+    const fileRecord = getFile(db, params.bucketId, params.path);
+    const etag = fileRecord
+      ? `"${fileRecord.sha256.slice(0, 16)}"`
+      : `"${Bun.hash(params.bucketId + params.path + size + bunFile.lastModified).toString(16)}"`;
 
     // Check If-None-Match
     if (req.headers.get("if-none-match") === etag) {

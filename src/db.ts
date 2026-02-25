@@ -229,6 +229,7 @@ export function upsertFile(
        size = excluded.size,
        mime_type = excluded.mime_type,
        sha256 = excluded.sha256,
+       short_code = files.short_code,
        version = files.version + 1,
        uploaded_at = unixepoch()`
   ).run(bucketId, path, size, mimeType, shortCode, sha256);

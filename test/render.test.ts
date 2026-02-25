@@ -142,11 +142,13 @@ test("JSON renderer handles null", async () => {
 
 // ---- SVG Renderer ----
 
-test("SVG renderer passes clean SVG through", async () => {
+test("SVG renderer passes clean SVG through in sandboxed iframe", async () => {
   const svg = '<svg width="100" height="100"><circle cx="50" cy="50" r="40"/></svg>';
   const html = await render(Buffer.from(svg), "icon.svg", "image/svg+xml");
   expect(html).toContain("lumen-svg");
-  expect(html).toContain("<circle");
+  expect(html).toContain("<iframe");
+  expect(html).toContain('sandbox=""');
+  expect(html).toContain("circle");
 });
 
 test("sanitizeSvg removes script tags", () => {
@@ -164,6 +166,11 @@ test("sanitizeSvg removes event handlers", () => {
 test("sanitizeSvg removes javascript: URLs", () => {
   const result = sanitizeSvg('<svg><a href="javascript:alert(1)"><text>click</text></a></svg>');
   expect(result).not.toContain("javascript:");
+});
+
+test("sanitizeSvg removes foreignObject", () => {
+  const result = sanitizeSvg('<svg><foreignObject><body><script>alert(1)</script></body></foreignObject></svg>');
+  expect(result).not.toContain("foreignObject");
 });
 
 // ---- Image Renderer ----

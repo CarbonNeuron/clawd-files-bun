@@ -125,7 +125,7 @@ input[type=file] { display: none; }
 const zone = document.getElementById('dropZone');
 const input = document.getElementById('fileInput');
 const status = document.getElementById('status');
-const token = '${Bun.escapeHTML(params.token)}';
+const token = ${JSON.stringify(params.token)};
 zone.onclick = () => input.click();
 zone.ondragover = (e) => { e.preventDefault(); zone.classList.add('active'); };
 zone.ondragleave = () => zone.classList.remove('active');

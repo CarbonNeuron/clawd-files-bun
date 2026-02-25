@@ -1,4 +1,4 @@
-import { createHmac } from "node:crypto";
+import { createHmac, timingSafeEqual } from "node:crypto";
 import { config } from "./config";
 import { getApiKeyByHash, updateApiKeyLastUsed } from "./db";
 import type { Database } from "bun:sqlite";
@@ -65,12 +65,19 @@ export function validateRequest(req: Request, db: Database): AuthResult {
 
 // ---- Upload Token (HMAC) ----
 
+function getHmacSecret(): string {
+  if (!config.adminKey) {
+    throw new Error("ADMIN_KEY is required for HMAC operations");
+  }
+  return config.adminKey;
+}
+
 export function generateUploadToken(bucketId: string, expiresAt: number): string {
   const payload = `${bucketId}:${expiresAt}`;
-  const hmac = createHmac("sha256", config.adminKey || "default-hmac-secret");
+  const secret = getHmacSecret();
+  const hmac = createHmac("sha256", secret);
   hmac.update(payload);
   const signature = hmac.digest("hex");
-  // Base64url encode the payload + signature
   const token = Buffer.from(`${payload}:${signature}`).toString("base64url");
   return token;
 }
@@ -91,13 +98,16 @@ export function validateUploadToken(token: string): { valid: true; bucketId: str
   const [bucketId, expiresAtStr, signature] = parts;
   const expiresAt = parseInt(expiresAtStr, 10);
 
-  // Verify signature
+  // Verify signature using constant-time comparison
   const payload = `${bucketId}:${expiresAt}`;
-  const hmac = createHmac("sha256", config.adminKey || "default-hmac-secret");
+  const secret = getHmacSecret();
+  const hmac = createHmac("sha256", secret);
   hmac.update(payload);
   const expectedSignature = hmac.digest("hex");
 
-  if (signature !== expectedSignature) {
+  const sigBuf = Buffer.from(signature, "hex");
+  const expectedBuf = Buffer.from(expectedSignature, "hex");
+  if (sigBuf.length !== expectedBuf.length || !timingSafeEqual(sigBuf, expectedBuf)) {
     return { valid: false, error: "Invalid token signature" };
   }
 
