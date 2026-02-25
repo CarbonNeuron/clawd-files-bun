@@ -89,28 +89,29 @@ export function registerPageRoutes() {
     const view = url.searchParams.get("view");
     const isFragment = url.searchParams.get("fragment") === "1";
 
-    const bunFile = readFile(params.bucketId, params.path);
     let renderedContent: string;
 
-    if (await bunFile.exists()) {
-      const content = Buffer.from(await bunFile.arrayBuffer());
-      if (view === "raw") {
-        // Show raw source as plain text
-        const code = content.toString("utf-8");
-        renderedContent = `<pre style="padding:16px;overflow-x:auto;font-size:13px;"><code>${Bun.escapeHTML(code)}</code></pre>`;
-      } else if (view === "code") {
-        // Show syntax-highlighted code view
-        const code = content.toString("utf-8");
-        const lang = getLangForFile(params.path) ?? "text";
-        const html = await highlightCode(code, lang);
-        renderedContent = `<div class="lumen-code">${html}</div>`;
-      } else if (content.length > config.maxRenderSize) {
-        renderedContent = `<div class="lumen-no-preview"><p>File too large to preview (${(content.length / 1024 / 1024).toFixed(1)} MB). <a href="/raw/${bucket.id}/${encodeFilePath(file.path)}">Download raw file</a>.</p></div>`;
-      } else {
-        renderedContent = await render(content, file.path, file.mime_type, { bucketId: params.bucketId });
-      }
+    // Check size from DB before touching disk — avoids loading huge files into memory
+    if (file.size > config.maxRenderSize && !view) {
+      renderedContent = `<div class="lumen-no-preview"><p>File too large to preview (${(file.size / 1024 / 1024).toFixed(1)} MB). <a href="/raw/${bucket.id}/${encodeFilePath(file.path)}">Download raw file</a>.</p></div>`;
     } else {
-      renderedContent = `<div class="lumen-no-preview"><p>File not found on disk.</p></div>`;
+      const bunFile = readFile(params.bucketId, params.path);
+      if (await bunFile.exists()) {
+        const content = Buffer.from(await bunFile.arrayBuffer());
+        if (view === "raw") {
+          const code = content.toString("utf-8");
+          renderedContent = `<pre style="padding:16px;overflow-x:auto;font-size:13px;"><code>${Bun.escapeHTML(code)}</code></pre>`;
+        } else if (view === "code") {
+          const code = content.toString("utf-8");
+          const lang = getLangForFile(params.path) ?? "text";
+          const html = await highlightCode(code, lang);
+          renderedContent = `<div class="lumen-code">${html}</div>`;
+        } else {
+          renderedContent = await render(content, file.path, file.mime_type, { bucketId: params.bucketId });
+        }
+      } else {
+        renderedContent = `<div class="lumen-no-preview"><p>File not found on disk.</p></div>`;
+      }
     }
 
     // Return just the fragment for AJAX requests
