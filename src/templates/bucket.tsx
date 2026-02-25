@@ -18,7 +18,7 @@ function fileIcon(mime: string): string {
   if (mime === "text/markdown") return "📝";
   if (mime === "text/csv") return "📊";
   if (mime.startsWith("text/")) return "📃";
-  return "📁";
+  return "📄";
 }
 
 function FileRow({ bucketId, f }: { bucketId: string; f: FileRow; children?: unknown }) {
@@ -33,21 +33,33 @@ function FileRow({ bucketId, f }: { bucketId: string; f: FileRow; children?: unk
   );
 }
 
-function GridCard({ bucketId, f }: { bucketId: string; f: FileRow; children?: unknown }) {
+// Preview HTML is server-generated from trusted content: Shiki codeToHtml output
+// (which escapes code internally), escapeHtml-escaped URLs, and static HTML tags.
+// No user-supplied HTML is injected — all content comes from local files on disk.
+function GridCard({ bucketId, f, snippet }: { bucketId: string; f: FileRow; snippet?: string; children?: unknown }) {
   const isImage = isImageFile(f.path);
+  const isVideo = f.mime_type.startsWith("video/");
   const thumbUrl = `/api/buckets/${bucketId}/thumb/${encodeFilePath(f.path)}`;
   const rawUrl = `/raw/${bucketId}/${encodeFilePath(f.path)}`;
   const icon = fileIcon(f.mime_type);
-  // Server-generated preview HTML for trusted thumbnail content
-  const preview = isImage
-    ? `<img src="${escapeHtml(thumbUrl)}" alt="${escapeHtml(f.path)}" loading="lazy" class="${bucketStyles.gridPreviewImg}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
-    : "";
-  const fallback = `<div class="${bucketStyles.gridIcon}" ${isImage ? 'style="display:none"' : ""}>${icon}</div>`;
+
+  let previewHtml: string;
+  if (isImage) {
+    const img = `<img src="${escapeHtml(thumbUrl)}" alt="${escapeHtml(f.path)}" loading="lazy" class="${bucketStyles.gridPreviewImg}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`;
+    const fallback = `<div class="${bucketStyles.gridIcon}" style="display:none">${icon}</div>`;
+    previewHtml = img + fallback;
+  } else if (isVideo) {
+    previewHtml = `<video src="${escapeHtml(rawUrl)}" preload="metadata" muted playsinline class="${bucketStyles.gridVideoPreview}"></video>`;
+  } else if (snippet) {
+    previewHtml = `<div class="${bucketStyles.gridCodePreview}">${snippet}<div class="${bucketStyles.gridCodeFade}"></div></div>`;
+  } else {
+    previewHtml = `<div class="${bucketStyles.gridIcon}">${icon}</div>`;
+  }
 
   return (
     <div class={bucketStyles.gridItem} data-grid-item>
       <a href={`/${bucketId}/${encodeFilePath(f.path)}`} class={bucketStyles.gridPreviewLink}>
-        <div class={bucketStyles.gridPreview} dangerouslySetInnerHTML={{ __html: preview + fallback }} />
+        <div class={bucketStyles.gridPreview} dangerouslySetInnerHTML={{ __html: previewHtml }} />
       </a>
       <div class={bucketStyles.gridInfo}>
         <a href={`/${bucketId}/${encodeFilePath(f.path)}`} class={bucketStyles.gridName} data-grid-name>{escapeHtml(f.path)}</a>
@@ -60,7 +72,7 @@ function GridCard({ bucketId, f }: { bucketId: string; f: FileRow; children?: un
   );
 }
 
-export function bucketPage(bucket: BucketRow, files: FileRow[], readmeHtml?: string): string {
+export function bucketPage(bucket: BucketRow, files: FileRow[], readmeHtml?: string, snippets?: Map<string, string>): string {
   const name = escapeHtml(bucket.name);
   const purpose = bucket.purpose
     ? <p class={bucketStyles.purpose}>{escapeHtml(bucket.purpose)}</p>
@@ -87,7 +99,7 @@ export function bucketPage(bucket: BucketRow, files: FileRow[], readmeHtml?: str
   let fileSection: string;
   if (files.length > 0) {
     const listRows = files.map((f) => <FileRow bucketId={bucket.id} f={f} />).join("");
-    const gridCards = files.map((f) => <GridCard bucketId={bucket.id} f={f} />).join("");
+    const gridCards = files.map((f) => <GridCard bucketId={bucket.id} f={f} snippet={snippets?.get(f.path)} />).join("");
 
     fileSection = (
       <>
