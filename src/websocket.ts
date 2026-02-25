@@ -43,5 +43,5 @@ function getFileIcon(mime: string): string {
   if (mime === "text/markdown") return "📝";
   if (mime === "text/csv") return "📊";
   if (mime.startsWith("text/")) return "📃";
-  return "📁";
+  return "📄";
 }

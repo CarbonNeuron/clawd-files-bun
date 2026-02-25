@@ -18,7 +18,7 @@ function fileIcon(mime: string): string {
   if (mime === "text/markdown") return "📝";
   if (mime === "text/csv") return "📊";
   if (mime.startsWith("text/")) return "📃";
-  return "📁";
+  return "📄";
 }
 
 function FileRow({ bucketId, f }: { bucketId: string; f: FileRow; children?: unknown }) {

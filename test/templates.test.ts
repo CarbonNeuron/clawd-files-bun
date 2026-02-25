@@ -97,3 +97,20 @@ test("file page renders preview and metadata", () => {
   expect(html).toContain("Download");
   expect(html).toContain("previewContainer");
 });
+
+test("bucket page uses document icon for unknown MIME types, not folder", () => {
+  const bucket: BucketRow = {
+    id: "test123456", name: "Test", description: "", purpose: "",
+    owner_key_hash: "hash", created_at: Math.floor(Date.now() / 1000),
+    expires_at: null, file_count: 1, total_size: 100,
+  };
+  const files: FileRow[] = [{
+    id: 1, bucket_id: "test123456", path: "data.bin",
+    size: 100, mime_type: "application/octet-stream",
+    short_code: "abc123", version: 1, sha256: "sha",
+    uploaded_at: Math.floor(Date.now() / 1000),
+  }];
+  const html = bucketPage(bucket, files);
+  expect(html).not.toContain("\u{1F4C1}");
+  expect(html).toContain("\u{1F4C4}");
+});
