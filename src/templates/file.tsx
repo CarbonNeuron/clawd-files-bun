@@ -45,7 +45,7 @@ export function filePage(
   ) : null;
 
   const curlCmd = `curl -LJO ${shortUrl}`;
-  const copyCmd = <div class={layoutStyles.copyCmd}><code>{curlCmd}</code><button onclick="navigator.clipboard.writeText(this.previousElementSibling.textContent)">copy</button></div>;
+  const copyCmd = <div class={layoutStyles.copyCmd}><code>{curlCmd}</code><button class={layoutStyles.copyCmdBtn} onclick="navigator.clipboard.writeText(this.previousElementSibling.textContent)">copy</button></div>;
 
   const escapedPath = encodeFilePath(file.path);
   const preview = isMedia ? mediaPlayer : (

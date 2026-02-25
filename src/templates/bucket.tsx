@@ -93,7 +93,7 @@ export function bucketPage(bucket: BucketRow, files: FileRow[], readmeHtml?: str
   );
 
   const zipCmd = files.length > 0
-    ? <div class={layoutStyles.copyCmd}><code>curl -LJO {escapeHtml(config.baseUrl)}/api/buckets/{bucket.id}/zip</code><button onclick="navigator.clipboard.writeText(this.previousElementSibling.textContent)">copy</button></div>
+    ? <div class={layoutStyles.copyCmd}><code>curl -LJO {escapeHtml(config.baseUrl)}/api/buckets/{bucket.id}/zip</code><button class={layoutStyles.copyCmdBtn} onclick="navigator.clipboard.writeText(this.previousElementSibling.textContent)">copy</button></div>
     : null;
 
   let fileSection: string;
