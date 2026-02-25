@@ -1,6 +1,7 @@
 import { addRoute } from "../router";
 import { config } from "../config";
-import { layout } from "../templates/layout";
+import { layout, layoutStyles } from "../templates/layout";
+import baseStyles from "../styles/base.module.css";
 
 export function registerDocRoutes() {
   // LLMs.txt
@@ -297,7 +298,7 @@ expiresIn accepts: "1h", "24h", "7d", "30d", "never"
     const html = layout({
       title: "API Documentation",
       content: `<div id="scalar-docs"></div>`,
-      head: `<style>.nav,.footer{display:none}.container{max-width:100%;padding:0}</style>`,
+      head: `<style>.${layoutStyles.nav},.${layoutStyles.footer}{display:none}.${baseStyles.container}{max-width:100%;padding:0}</style>`,
       scripts: `
         <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
         <script>
