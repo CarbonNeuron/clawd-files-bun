@@ -1,0 +1,417 @@
+/*
+ * Render styles — :global() because renderers emit pre-built HTML with
+ * class names like .lumen-code, .lumen-markdown, etc. that cannot be scoped.
+ */
+
+/* === Base render styles === */
+:global(.lumen-render) {
+  font-family: 'JetBrains Mono', monospace;
+  line-height: 1.6;
+  color: var(--text);
+}
+
+:global(.lumen-no-preview) {
+  padding: 40px;
+  text-align: center;
+  color: var(--text-muted);
+  background: var(--bg-card);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+
+/* === Code renderer (standalone, inside .preview-container) === */
+:global(.lumen-code pre) {
+  margin: 0;
+  padding: 16px;
+  border-radius: 0;
+  overflow-x: auto;
+  font-size: 13px;
+  line-height: 1.5;
+  background: transparent !important;
+}
+
+:global(.lumen-code pre code) {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+:global(.lumen-code .line-number) {
+  display: inline-block;
+  width: 3em;
+  text-align: right;
+  padding-right: 1em;
+  color: var(--text-dim);
+  user-select: none;
+}
+
+/* === Markdown renderer === */
+:global(.lumen-markdown) {
+  padding: 24px;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+:global(.lumen-markdown h1),
+:global(.lumen-markdown h2),
+:global(.lumen-markdown h3),
+:global(.lumen-markdown h4) {
+  color: var(--text);
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.3em;
+  line-height: 1.3;
+}
+
+:global(.lumen-markdown h1) { font-size: 1.6em; }
+:global(.lumen-markdown h2) { font-size: 1.3em; }
+:global(.lumen-markdown h3) { font-size: 1.1em; }
+:global(.lumen-markdown h4) { font-size: 1em; border-bottom: none; }
+
+:global(.lumen-markdown p),
+:global(.lumen-markdown ul),
+:global(.lumen-markdown ol) {
+  margin-bottom: 0.75em;
+}
+
+:global(.lumen-markdown ul),
+:global(.lumen-markdown ol) {
+  padding-left: 1.5em;
+}
+
+:global(.lumen-markdown li) {
+  margin-bottom: 0.25em;
+}
+
+:global(.lumen-markdown a) {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+:global(.lumen-markdown a:hover) {
+  text-decoration: underline;
+}
+
+:global(.lumen-markdown code) {
+  background: var(--border);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+:global(.lumen-markdown pre) {
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 1em 0;
+  padding: 16px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+:global(.lumen-markdown pre code) {
+  background: none;
+  padding: 0;
+  font-size: inherit;
+}
+
+/* Shiki code blocks inside markdown — override inline bg */
+:global(.lumen-markdown pre.shiki) {
+  background-color: rgba(0, 0, 0, 0.25) !important;
+  border-radius: 8px;
+  padding: 16px;
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 1em 0;
+}
+
+:global(.lumen-markdown pre.shiki code) {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: inherit;
+}
+
+:global(.lumen-markdown blockquote) {
+  border-left: 3px solid var(--accent);
+  margin: 1em 0;
+  padding-left: 16px;
+  color: var(--text-muted);
+}
+
+:global(.lumen-markdown img) {
+  max-width: 100%;
+  border-radius: 8px;
+}
+
+:global(.lumen-markdown hr) {
+  border: none;
+  border-top: 1px solid var(--border-hover);
+  margin: 1.5em 0;
+}
+
+:global(.lumen-markdown table) {
+  border-collapse: collapse;
+  width: auto;
+  margin: 1em 0;
+  font-size: 13px;
+}
+
+:global(.lumen-markdown th),
+:global(.lumen-markdown td) {
+  border: 1px solid var(--border-hover);
+  padding: 6px 12px;
+  text-align: left;
+}
+
+:global(.lumen-markdown th) {
+  background: var(--bg-code);
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+:global(.lumen-markdown tr:nth-child(even)) {
+  background: rgba(13, 17, 23, 0.4);
+}
+
+/* === CSV renderer === */
+:global(.lumen-csv) {
+  overflow-x: auto;
+}
+
+:global(.csv-toolbar) {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+}
+
+:global(.csv-filter) {
+  flex: 1;
+  max-width: 320px;
+  padding: 6px 12px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--border-hover);
+  border-radius: 6px;
+  color: var(--text);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  outline: none;
+}
+
+:global(.csv-filter:focus) {
+  border-color: var(--accent);
+}
+
+:global(.csv-filter::placeholder) {
+  color: var(--text-dim);
+}
+
+:global(.csv-count) {
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+:global(.lumen-csv table) {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 13px;
+}
+
+:global(.lumen-csv th) {
+  background: var(--bg-code);
+  position: sticky;
+  top: 0;
+  font-weight: 600;
+  color: var(--text-muted);
+  border-bottom: 2px solid var(--border);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+:global(.lumen-csv th.sortable:hover) {
+  color: var(--accent);
+}
+
+:global(.lumen-csv th.sorted) {
+  color: var(--accent);
+}
+
+:global(.lumen-csv th),
+:global(.lumen-csv td) {
+  padding: 6px 12px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.06);
+  text-align: left;
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+:global(.lumen-csv th) {
+  white-space: nowrap;
+}
+
+:global(.lumen-csv tr:nth-child(even)) {
+  background: rgba(13, 17, 23, 0.3);
+}
+
+:global(.lumen-csv tr:hover) {
+  background: rgba(34, 211, 238, 0.05);
+}
+
+/* === JSON renderer === */
+:global(.lumen-json) {
+  font-size: 13px;
+  line-height: 1.5;
+  padding: 16px;
+}
+
+:global(.lumen-json details) {
+  margin-left: 16px;
+}
+
+:global(.lumen-json summary) {
+  cursor: pointer;
+  color: var(--text-muted);
+}
+
+:global(.lumen-json summary:hover) {
+  color: var(--text);
+}
+
+:global(.lumen-json .json-key) {
+  color: #7dd3fc;
+}
+
+:global(.lumen-json .json-string) {
+  color: #4ade80;
+}
+
+:global(.lumen-json .json-number) {
+  color: var(--accent);
+}
+
+:global(.lumen-json .json-boolean) {
+  color: #fb923c;
+}
+
+:global(.lumen-json .json-null) {
+  color: var(--text-dim);
+  font-style: italic;
+}
+
+/* === SVG renderer === */
+:global(.lumen-svg) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: var(--bg-card);
+  border-radius: 8px;
+}
+
+:global(.lumen-svg svg) {
+  max-width: 100%;
+  max-height: 80vh;
+}
+
+/* === Image renderer === */
+:global(.lumen-image) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+:global(.lumen-image img) {
+  max-width: 100%;
+  max-height: 80vh;
+  border-radius: 8px;
+}
+
+/* === PDF renderer === */
+:global(.lumen-pdf) {
+  text-align: center;
+  padding: 40px;
+}
+
+:global(.lumen-pdf object) {
+  width: 100%;
+  height: 80vh;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+
+:global(.lumen-pdf .pdf-fallback) {
+  margin-top: 16px;
+}
+
+:global(.lumen-pdf .pdf-fallback a) {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: var(--accent);
+  color: #06090f;
+  text-decoration: none;
+  border-radius: 6px;
+  font-weight: 600;
+}
+
+:global(.lumen-pdf .pdf-fallback a:hover) {
+  background: var(--accent-hover);
+}
+
+/* === Table viewer === */
+:global(.lumen-table-viewer .pagination) {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 12px 16px;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+:global(.lumen-table-viewer .pagination a) {
+  color: var(--accent);
+  text-decoration: none;
+  padding: 4px 12px;
+  border: 1px solid rgba(34, 211, 238, 0.3);
+  border-radius: 4px;
+}
+
+:global(.lumen-table-viewer .pagination a:hover) {
+  background: rgba(34, 211, 238, 0.1);
+}
+
+/* === Toolbar === */
+:global(.lumen-toolbar) {
+  display: flex;
+  gap: 8px;
+  padding: 8px 16px;
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border);
+  border-radius: 8px 8px 0 0;
+}
+
+:global(.lumen-toolbar button),
+:global(.lumen-toolbar a) {
+  padding: 4px 12px;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 12px;
+  text-decoration: none;
+}
+
+:global(.lumen-toolbar button:hover),
+:global(.lumen-toolbar a:hover) {
+  color: var(--text);
+  border-color: rgba(148, 163, 184, 0.4);
+}
+
+:global(.lumen-toolbar .active) {
+  color: var(--accent);
+  border-color: var(--accent);
+}
