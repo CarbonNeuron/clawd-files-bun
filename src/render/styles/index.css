@@ -41,6 +41,8 @@
 .lumen-markdown {
   padding: 24px;
   max-width: 900px;
+  font-size: 14px;
+  line-height: 1.7;
 }
 
 .lumen-markdown h1,
@@ -52,11 +54,23 @@
   margin-bottom: 0.5em;
   border-bottom: 1px solid rgba(148, 163, 184, 0.1);
   padding-bottom: 0.3em;
+  line-height: 1.3;
 }
 
-.lumen-markdown h1 { font-size: 1.8em; }
-.lumen-markdown h2 { font-size: 1.4em; }
-.lumen-markdown h3 { font-size: 1.2em; }
+.lumen-markdown h1 { font-size: 1.6em; }
+.lumen-markdown h2 { font-size: 1.3em; }
+.lumen-markdown h3 { font-size: 1.1em; }
+.lumen-markdown h4 { font-size: 1em; border-bottom: none; }
+
+.lumen-markdown p,
+.lumen-markdown ul,
+.lumen-markdown ol {
+  margin-bottom: 0.75em;
+}
+
+.lumen-markdown li {
+  margin-bottom: 0.25em;
+}
 
 .lumen-markdown a {
   color: #22d3ee;
@@ -71,23 +85,40 @@
   background: #161b22;
   padding: 2px 6px;
   border-radius: 4px;
-  font-size: 0.9em;
+  font-size: 13px;
+  font-family: 'JetBrains Mono', monospace;
 }
 
 .lumen-markdown pre {
   background: #161b22;
   border-radius: 8px;
   overflow-x: auto;
+  margin: 1em 0;
+  font-size: 13px;
+  line-height: 1.5;
 }
 
 .lumen-markdown pre code {
   background: none;
   padding: 0;
+  font-size: inherit;
+}
+
+/* Shiki code blocks inside markdown */
+.lumen-markdown pre.shiki {
+  padding: 16px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.lumen-markdown pre.shiki code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: inherit;
 }
 
 .lumen-markdown blockquote {
   border-left: 3px solid #22d3ee;
-  margin-left: 0;
+  margin: 1em 0;
   padding-left: 16px;
   color: #94a3b8;
 }
@@ -97,21 +128,34 @@
   border-radius: 8px;
 }
 
+.lumen-markdown hr {
+  border: none;
+  border-top: 1px solid rgba(148, 163, 184, 0.15);
+  margin: 1.5em 0;
+}
+
 .lumen-markdown table {
   border-collapse: collapse;
-  width: 100%;
+  width: auto;
+  margin: 1em 0;
+  font-size: 13px;
 }
 
 .lumen-markdown th,
 .lumen-markdown td {
-  border: 1px solid rgba(148, 163, 184, 0.2);
-  padding: 8px 12px;
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  padding: 6px 12px;
   text-align: left;
 }
 
 .lumen-markdown th {
   background: #161b22;
   font-weight: 600;
+  color: #94a3b8;
+}
+
+.lumen-markdown tr:nth-child(even) {
+  background: rgba(13, 17, 23, 0.4);
 }
 
 /* === CSV renderer === */
