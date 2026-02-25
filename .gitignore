@@ -41,5 +41,4 @@ data/
 
 # build artifacts
 clawd-files
-src/static/render.css
-src/static/site.css
+src/static/styles.css

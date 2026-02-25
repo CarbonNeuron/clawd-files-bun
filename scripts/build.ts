@@ -4,20 +4,14 @@
  */
 import * as log from "../src/logger";
 
-// 1. Bundle CSS
-log.info("Bundling render CSS...");
-const renderCss = await Bun.build({
+// 1. Bundle all CSS (index.css @imports site.css, Bun resolves everything)
+log.info("Bundling CSS...");
+const css = await Bun.build({
   entrypoints: ["./src/render/styles/index.css"],
   minify: true,
 });
-await Bun.write("./src/static/render.css", renderCss.outputs[0]);
-
-log.info("Bundling site CSS...");
-const siteCss = await Bun.build({
-  entrypoints: ["./src/render/styles/site.css"],
-  minify: true,
-});
-await Bun.write("./src/static/site.css", siteCss.outputs[0]);
+await Bun.write("./src/static/styles.css", css.outputs[0]);
+log.info(`CSS bundled: ${(await css.outputs[0].arrayBuffer()).byteLength} bytes`);
 
 // 2. Compile binary
 log.info("Compiling binary...");

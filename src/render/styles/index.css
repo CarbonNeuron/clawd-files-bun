@@ -1,3 +1,5 @@
+@import './site.css';
+
 /* === Base render styles === */
 .lumen-render {
   font-family: 'JetBrains Mono', monospace;

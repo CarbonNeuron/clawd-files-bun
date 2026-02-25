@@ -1,5 +1,5 @@
 /* Abyssal Terminal Theme - Site Styles */
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+/* Font loaded via <link> in layout.ts */
 
 :root {
   --bg-deep: #06090f;

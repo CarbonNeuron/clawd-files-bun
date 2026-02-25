@@ -11,6 +11,7 @@ import {
   updateBucketStats,
   insertFileVersion,
   getFileVersions,
+  incrementDailyUploads,
 } from "../db";
 import {
   writeFile as writeStorageFile,
@@ -22,6 +23,7 @@ import {
   getFilePath,
 } from "../storage";
 import { generateShortCode, getMimeType, formatBytes } from "../utils";
+import { config } from "../config";
 import { getThumbnail } from "../thumbnails";
 import yazl from "yazl";
 
@@ -75,11 +77,15 @@ export function registerFileRoutes() {
       upsertFile(db, params.id, fileName, blob.size, mimeType, shortCode, sha256);
 
       const file = getFile(db, params.id, fileName);
+      const sc = file?.short_code ?? shortCode;
       uploadedFiles.push({
         path: fileName,
         size: blob.size,
-        shortCode: file?.short_code ?? shortCode,
+        mimeType,
         version: file?.version ?? 1,
+        url: `${config.baseUrl}/${params.id}/${fileName}`,
+        rawUrl: `${config.baseUrl}/raw/${params.id}/${fileName}`,
+        shortUrl: `${config.baseUrl}/s/${sc}`,
       });
     }
 
@@ -89,6 +95,8 @@ export function registerFileRoutes() {
 
     updateBucketStats(db, params.id);
     notifyBucketChange(params.id);
+    const totalBytes = uploadedFiles.reduce((sum, f) => sum + f.size, 0);
+    incrementDailyUploads(db, uploadedFiles.length, totalBytes);
     return Response.json({ uploaded: uploadedFiles }, { status: 201 });
   });
 

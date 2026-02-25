@@ -57,6 +57,7 @@ function gridViewCards(bucketId: string, files: FileRow[]): string {
 
 export function bucketPage(bucket: BucketRow, files: FileRow[], readmeHtml?: string): string {
   const name = escapeHtml(bucket.name);
+  const purpose = bucket.purpose ? `<p style="color:var(--text-muted);font-size:13px;margin-top:2px;">${escapeHtml(bucket.purpose)}</p>` : "";
   const desc = bucket.description ? `<p style="color:var(--text-muted);margin-bottom:16px;">${escapeHtml(bucket.description)}</p>` : "";
 
   const expiryBadge = bucket.expires_at
@@ -226,7 +227,10 @@ function applyGridSort() {
         <a href="/">home</a><span class="sep">/</span><span>${name}</span>
       </div>
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:8px;">
-        <h1>${name}</h1>
+        <div>
+          <h1>${name}</h1>
+          ${purpose}
+        </div>
         ${headerActions}
       </div>
       ${desc}

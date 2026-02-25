@@ -40,13 +40,13 @@ export function registerUploadLinkRoutes() {
     const expiresAt = Math.floor(Date.now() / 1000) + seconds;
 
     const token = generateUploadToken(params.id, expiresAt);
-    const url = `${config.baseUrl}/upload/${token}`;
+    const url = `${config.baseUrl}/api/upload/${token}`;
 
     return Response.json({ url, token, expiresAt }, { status: 201 });
   });
 
   // Upload via token (POST)
-  addRoute("POST", "/upload/:token", async (req, params) => {
+  addRoute("POST", "/api/upload/:token", async (req, params) => {
     const result = validateUploadToken(params.token);
     if (!result.valid) {
       return Response.json({ error: result.error }, { status: 401 });
@@ -97,7 +97,7 @@ export function registerUploadLinkRoutes() {
   });
 
   // Upload page (GET) — simple drag-and-drop HTML
-  addRoute("GET", "/upload/:token", async (_req, params) => {
+  addRoute("GET", "/api/upload/:token", async (_req, params) => {
     const result = validateUploadToken(params.token);
     if (!result.valid) {
       return new Response("Upload link expired or invalid", { status: 401 });
@@ -138,7 +138,7 @@ async function upload(files) {
   for (const f of files) fd.append('files', f);
   status.textContent = 'Uploading...';
   try {
-    const res = await fetch('/upload/' + token, { method: 'POST', body: fd });
+    const res = await fetch('/api/upload/' + token, { method: 'POST', body: fd });
     const data = await res.json();
     if (res.ok) {
       status.innerHTML = '<span class="success">Uploaded ' + data.uploaded.length + ' file(s)</span>';

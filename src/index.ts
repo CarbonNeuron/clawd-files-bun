@@ -10,7 +10,8 @@ import { registerShortRoutes } from "./routes/short";
 import { registerPageRoutes } from "./routes/pages";
 import { registerDocRoutes } from "./routes/docs";
 import { registerTableViewerRoutes } from "./routes/table-viewer";
-import { buildStyles, buildSiteStyles } from "./render/styles";
+import { registerAdminRoutes } from "./routes/admin";
+import { buildStyles } from "./render/styles";
 import { preloadHighlighter } from "./render/code";
 import { startCleanupLoop, startStatsAggregation } from "./cleanup";
 import { setServer } from "./websocket";
@@ -28,15 +29,11 @@ getDb();
 log.info("Database initialized");
 
 // Build CSS and preload Shiki in parallel
-const [styles, siteStyles] = await Promise.all([
+const [styles] = await Promise.all([
   buildStyles(),
-  buildSiteStyles(),
   preloadHighlighter(),
 ]);
 log.info("CSS built, Shiki loaded");
-
-const combinedCss = styles.css + "\n" + siteStyles.css;
-const combinedCssEtag = Bun.hash(combinedCss).toString(16);
 
 // Register all routes (order matters — API routes first, then catch-all page routes)
 registerKeyRoutes();
@@ -46,6 +43,7 @@ registerUploadLinkRoutes();
 registerShortRoutes();
 registerDocRoutes();
 registerTableViewerRoutes();
+registerAdminRoutes();
 registerPageRoutes(); // Must be last — catch-all patterns
 log.info("Routes registered");
 
@@ -63,11 +61,11 @@ const server = Bun.serve({
       headers: { "Content-Type": "application/javascript", "Cache-Control": "public, max-age=31536000, immutable" },
     }),
     "/styles.css": () => {
-      return new Response(combinedCss, {
+      return new Response(styles.css, {
         headers: {
           "Content-Type": "text/css",
           "Cache-Control": "public, max-age=31536000, immutable",
-          ETag: combinedCssEtag,
+          ETag: styles.etag,
         },
       });
     },

@@ -82,6 +82,44 @@ export function generateUploadToken(bucketId: string, expiresAt: number): string
   return token;
 }
 
+export function generateAdminToken(expiresAt: number): string {
+  const payload = `admin:${expiresAt}`;
+  const secret = getHmacSecret();
+  const hmac = createHmac("sha256", secret);
+  hmac.update(payload);
+  const signature = hmac.digest("hex");
+  return Buffer.from(`${payload}:${signature}`).toString("base64url");
+}
+
+export function validateAdminToken(token: string): { valid: true } | { valid: false; error: string } {
+  let decoded: string;
+  try {
+    decoded = Buffer.from(token, "base64url").toString("utf-8");
+  } catch {
+    return { valid: false, error: "Invalid token encoding" };
+  }
+  const parts = decoded.split(":");
+  if (parts.length !== 3 || parts[0] !== "admin") {
+    return { valid: false, error: "Invalid token format" };
+  }
+  const expiresAt = parseInt(parts[1], 10);
+  const signature = parts[2];
+  const payload = `admin:${expiresAt}`;
+  const secret = getHmacSecret();
+  const hmac = createHmac("sha256", secret);
+  hmac.update(payload);
+  const expectedSignature = hmac.digest("hex");
+  const sigBuf = Buffer.from(signature, "hex");
+  const expectedBuf = Buffer.from(expectedSignature, "hex");
+  if (sigBuf.length !== expectedBuf.length || !timingSafeEqual(sigBuf, expectedBuf)) {
+    return { valid: false, error: "Invalid token signature" };
+  }
+  if (Math.floor(Date.now() / 1000) > expiresAt) {
+    return { valid: false, error: "Token expired" };
+  }
+  return { valid: true };
+}
+
 export function validateUploadToken(token: string): { valid: true; bucketId: string } | { valid: false; error: string } {
   let decoded: string;
   try {

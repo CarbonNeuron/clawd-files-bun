@@ -290,7 +290,7 @@ test("POST /api/buckets/:id/upload-link creates link", async () => {
   });
   expect(res.status).toBe(201);
   const data = await res.json();
-  expect(data.url).toContain("/upload/");
+  expect(data.url).toContain("/api/upload/");
   expect(data.token).toBeTruthy();
 });
 
@@ -310,7 +310,7 @@ test("POST /upload/:token uploads via token", async () => {
   const formData = new FormData();
   formData.append("files", new File(["token upload content"], "via-token.txt", { type: "text/plain" }));
 
-  const res = await fetch(`${baseUrl}/upload/${token}`, {
+  const res = await fetch(`${baseUrl}/api/upload/${token}`, {
     method: "POST",
     body: formData,
   });

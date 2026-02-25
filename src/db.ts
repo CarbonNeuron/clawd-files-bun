@@ -82,6 +82,8 @@ function initSchema(db: Database) {
       total_buckets INTEGER NOT NULL DEFAULT 0,
       total_files INTEGER NOT NULL DEFAULT 0,
       total_size INTEGER NOT NULL DEFAULT 0,
+      uploads_today INTEGER NOT NULL DEFAULT 0,
+      bytes_uploaded_today INTEGER NOT NULL DEFAULT 0,
       PRIMARY KEY (date)
     );
 
@@ -90,6 +92,14 @@ function initSchema(db: Database) {
     CREATE INDEX IF NOT EXISTS idx_files_bucket_id ON files(bucket_id);
     CREATE INDEX IF NOT EXISTS idx_buckets_owner ON buckets(owner_key_hash);
   `);
+
+  // Migrations for existing databases
+  try {
+    db.exec("ALTER TABLE daily_stats ADD COLUMN uploads_today INTEGER NOT NULL DEFAULT 0");
+    db.exec("ALTER TABLE daily_stats ADD COLUMN bytes_uploaded_today INTEGER NOT NULL DEFAULT 0");
+  } catch {
+    // Columns already exist
+  }
 }
 
 // ---- API Key queries ----
@@ -282,19 +292,40 @@ export function getFileVersions(db: Database, fileId: number) {
 
 // ---- Stats queries ----
 
-export function upsertDailyStats(db: Database, date: string, totalBuckets: number, totalFiles: number, totalSize: number) {
+export function upsertDailyStats(
+  db: Database,
+  date: string,
+  totalBuckets: number,
+  totalFiles: number,
+  totalSize: number,
+  uploadsToday: number = 0,
+  bytesUploadedToday: number = 0
+) {
   return db.query(
-    `INSERT INTO daily_stats (date, total_buckets, total_files, total_size)
-     VALUES (?, ?, ?, ?)
+    `INSERT INTO daily_stats (date, total_buckets, total_files, total_size, uploads_today, bytes_uploaded_today)
+     VALUES (?, ?, ?, ?, ?, ?)
      ON CONFLICT(date) DO UPDATE SET
        total_buckets = excluded.total_buckets,
        total_files = excluded.total_files,
-       total_size = excluded.total_size`
-  ).run(date, totalBuckets, totalFiles, totalSize);
+       total_size = excluded.total_size,
+       uploads_today = daily_stats.uploads_today + excluded.uploads_today,
+       bytes_uploaded_today = daily_stats.bytes_uploaded_today + excluded.bytes_uploaded_today`
+  ).run(date, totalBuckets, totalFiles, totalSize, uploadsToday, bytesUploadedToday);
+}
+
+export function incrementDailyUploads(db: Database, fileCount: number, totalBytes: number) {
+  const date = new Date().toISOString().split("T")[0];
+  return db.query(
+    `INSERT INTO daily_stats (date, uploads_today, bytes_uploaded_today)
+     VALUES (?, ?, ?)
+     ON CONFLICT(date) DO UPDATE SET
+       uploads_today = daily_stats.uploads_today + excluded.uploads_today,
+       bytes_uploaded_today = daily_stats.bytes_uploaded_today + excluded.bytes_uploaded_today`
+  ).run(date, fileCount, totalBytes);
 }
 
 export function getDailyStatsRange(db: Database, startDate: string, endDate: string) {
-  return db.query<{ date: string; total_buckets: number; total_files: number; total_size: number }, [string, string]>(
+  return db.query<{ date: string; total_buckets: number; total_files: number; total_size: number; uploads_today: number; bytes_uploaded_today: number }, [string, string]>(
     "SELECT * FROM daily_stats WHERE date >= ? AND date <= ? ORDER BY date ASC"
   ).all(startDate, endDate);
 }

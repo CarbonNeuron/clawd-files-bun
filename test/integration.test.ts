@@ -128,7 +128,9 @@ test("3. upload files", async () => {
   expect(res.status).toBe(201);
   const data = await res.json();
   expect(data.uploaded).toHaveLength(4);
-  shortCode = data.uploaded[0].shortCode;
+  // Extract short code from the shortUrl
+  const shortUrlParts = data.uploaded[0].shortUrl.split("/s/");
+  shortCode = shortUrlParts[shortUrlParts.length - 1];
 });
 
 test("4. list files via bucket detail (JSON)", async () => {
@@ -232,7 +234,7 @@ test("14. generate upload link and upload via token", async () => {
 
   const fd = new FormData();
   fd.append("files", new File(["uploaded via token"], "token-file.txt"));
-  const uploadRes = await fetch(`${baseUrl}/upload/${token}`, {
+  const uploadRes = await fetch(`${baseUrl}/api/upload/${token}`, {
     method: "POST",
     body: fd,
   });
