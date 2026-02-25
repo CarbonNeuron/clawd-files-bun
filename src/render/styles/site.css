@@ -166,7 +166,8 @@ a:hover { text-decoration: underline; }
 .file-grid-item:hover {
   border-color: var(--accent);
 }
-.grid-preview-link {
+.grid-preview-link,
+.grid-preview-link:hover {
   text-decoration: none;
   color: inherit;
 }
