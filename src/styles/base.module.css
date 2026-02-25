@@ -1,0 +1,40 @@
+/* Reset — global because resets apply to all elements */
+:global(*) { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* Theme custom properties — global because CSS vars are inherently global */
+:global(:root) {
+  --bg-deep: #050809;
+  --bg-card: #0c1015;
+  --bg-surface: #131920;
+  --bg-code: #161b22;
+  --text: #e4e8ee;
+  --text-muted: #8494a7;
+  --text-dim: #5a6a7e;
+  --accent: #22d3ee;
+  --accent-hover: #06b6d4;
+  --accent-glow: rgba(34, 211, 238, 0.08);
+  --border: rgba(148, 163, 184, 0.08);
+  --border-hover: rgba(148, 163, 184, 0.16);
+  --success: #34d399;
+  --error: #f87171;
+  --warning: #fbbf24;
+  --radius: 8px;
+  --radius-sm: 6px;
+  --radius-lg: 12px;
+}
+
+/* Base typography — global because it sets the document defaults */
+:global(body) {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  background: var(--bg-deep);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+:global(a) { color: var(--accent); text-decoration: none; }
+:global(a:hover) { text-decoration: underline; }
+
+/* Scoped utility class — used via baseStyles.container in templates */
+.container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
