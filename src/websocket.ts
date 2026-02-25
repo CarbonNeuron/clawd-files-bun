@@ -17,6 +17,12 @@ export function notifyBucketChange(bucketId: string): void {
   _server.publish(`bucket:${bucketId}`, html);
 }
 
+export function notifyFileChange(bucketId: string, path: string): void {
+  if (!_server) return;
+  // Signal file viewers to refresh — send a JSON message with the event type
+  _server.publish(`file:${bucketId}:${path}`, JSON.stringify({ type: "updated", bucketId, path }));
+}
+
 function fileRowHtml(bucketId: string, f: FileRow): string {
   const icon = getFileIcon(f.mime_type);
   return `<tr>

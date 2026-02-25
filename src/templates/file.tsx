@@ -88,5 +88,28 @@ export function filePage(
     </>
   );
 
-  return layout({ title: `${file.path} — ${bucket.name}`, content });
+  const scripts = `
+<script>
+(function() {
+  var proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+  var ws = new WebSocket(proto + '//' + location.host + '/ws/file/${bucket.id}/${encodeURIComponent(file.path)}');
+  ws.onmessage = function(e) {
+    try {
+      var msg = JSON.parse(e.data);
+      if (msg.type === 'updated') {
+        // Fetch updated preview fragment
+        fetch('/${bucket.id}/${encodeURIComponent(file.path)}?fragment=1')
+          .then(function(r) { return r.text(); })
+          .then(function(html) {
+            var el = document.getElementById('preview-body');
+            if (el) el.innerHTML = html;
+          });
+      }
+    } catch(err) {}
+  };
+  ws.onclose = function() { setTimeout(function() { location.reload(); }, 3000); };
+})();
+</script>`;
+
+  return layout({ title: `${file.path} — ${bucket.name}`, content, scripts });
 }

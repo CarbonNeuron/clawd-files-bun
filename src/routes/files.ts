@@ -1,6 +1,6 @@
 import { addRoute } from "../router";
 import { validateRequest } from "../auth";
-import { notifyBucketChange } from "../websocket";
+import { notifyBucketChange, notifyFileChange } from "../websocket";
 import {
   getDb,
   getBucket,
@@ -95,6 +95,7 @@ export function registerFileRoutes() {
 
     updateBucketStats(db, params.id);
     notifyBucketChange(params.id);
+    for (const f of uploadedFiles) notifyFileChange(params.id, f.path);
     const totalBytes = uploadedFiles.reduce((sum, f) => sum + f.size, 0);
     incrementDailyUploads(db, uploadedFiles.length, totalBytes);
     return Response.json({ uploaded: uploadedFiles }, { status: 201 });

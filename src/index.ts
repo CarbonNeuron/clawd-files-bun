@@ -77,13 +77,16 @@ const server = Bun.serve({
 
     // WebSocket upgrade
     if (req.headers.get("upgrade") === "websocket") {
-      const wsMatch = url.pathname.match(/^\/ws\/bucket\/(.+)$/);
-      if (wsMatch) {
-        const upgraded = server.upgrade(req, { data: { bucketId: wsMatch[1] } });
-        if (upgraded) {
-          log.debug(`WS upgrade ${url.pathname}`);
-          return undefined;
-        }
+      const bucketMatch = url.pathname.match(/^\/ws\/bucket\/(.+)$/);
+      if (bucketMatch) {
+        const upgraded = server.upgrade(req, { data: { bucketId: bucketMatch[1] } });
+        if (upgraded) { log.debug(`WS upgrade bucket:${bucketMatch[1]}`); return undefined; }
+        return new Response("WebSocket upgrade failed", { status: 500 });
+      }
+      const fileMatch = url.pathname.match(/^\/ws\/file\/([^/]+)\/(.+)$/);
+      if (fileMatch) {
+        const upgraded = server.upgrade(req, { data: { bucketId: fileMatch[1], filePath: fileMatch[2] } });
+        if (upgraded) { log.debug(`WS upgrade file:${fileMatch[1]}:${fileMatch[2]}`); return undefined; }
         return new Response("WebSocket upgrade failed", { status: 500 });
       }
       return new Response("Bad WebSocket path", { status: 400 });
@@ -109,8 +112,11 @@ const server = Bun.serve({
 
   websocket: {
     open(ws) {
-      const { bucketId } = ws.data as { bucketId: string };
-      if (bucketId) {
+      const { bucketId, filePath } = ws.data as { bucketId: string; filePath?: string };
+      if (filePath) {
+        ws.subscribe(`file:${bucketId}:${filePath}`);
+        log.debug(`WS open file:${bucketId}:${filePath}`);
+      } else if (bucketId) {
         ws.subscribe(`bucket:${bucketId}`);
         log.debug(`WS open bucket:${bucketId}`);
       }
