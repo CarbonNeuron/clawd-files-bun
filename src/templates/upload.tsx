@@ -1,5 +1,5 @@
 import { Raw } from "../jsx/jsx-runtime";
-import { cssText, hasPrebuiltStylesheet } from "../css-text";
+import { cssText, hasPrebuiltStylesheet, getPrebuiltCss } from "../css-text";
 import baseStyles from "../styles/base.module.css";
 import uploadStyles from "../styles/upload.module.css";
 import { getClientJs } from "../client-bundle";
@@ -46,7 +46,7 @@ export function uploadPage({ token, baseUrl }: UploadPageProps): string {
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=optional" />
         {hasPrebuiltStylesheet()
-          ? <link rel="stylesheet" href="/styles.css" />
+          ? <style><Raw html={getPrebuiltCss()} /></style>
           : <style><Raw html={cssText(baseStyles, "base") + cssText(uploadStyles, "upload")} /></style>}
         <script type="application/json" id="pageData"><Raw html={pageData} /></script>
       </head>

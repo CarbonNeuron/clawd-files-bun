@@ -1,6 +1,6 @@
 import { Raw } from "../jsx/jsx-runtime";
 import { config } from "../config";
-import { cssText, hasPrebuiltStylesheet } from "../css-text";
+import { cssText, hasPrebuiltStylesheet, getPrebuiltCss } from "../css-text";
 import baseStyles from "../styles/base.module.css";
 import layoutStyles from "../styles/layout.module.css";
 
@@ -23,7 +23,7 @@ export function layout({ title, content, scripts, head }: LayoutProps): string {
         <link rel="preload" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=optional" as="style" />
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=optional" />
         {hasPrebuiltStylesheet()
-          ? <link rel="stylesheet" href="/styles.css" />
+          ? <style><Raw html={getPrebuiltCss()} /></style>
           : <style><Raw html={cssText(baseStyles, "base") + cssText(layoutStyles, "layout")} /></style>}
         {head ? <Raw html={head} /> : null}
       </head>
