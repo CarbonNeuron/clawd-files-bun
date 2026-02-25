@@ -97,6 +97,8 @@ export async function streamWriteFile(
  * Stream a ReadableStream (e.g. req.body) directly to disk while
  * computing SHA-256 incrementally. Never buffers the full content
  * in memory — each chunk is hashed and flushed immediately.
+ * Uses getReader() for explicit stream consumption (more reliable
+ * than for-await in Bun for large streams).
  */
 export async function streamWriteFromBody(
   bucketId: string,
@@ -110,10 +112,17 @@ export async function streamWriteFromBody(
   const writer = Bun.file(dest).writer();
   let totalSize = 0;
 
-  for await (const chunk of body) {
-    hasher.update(chunk);
-    writer.write(chunk);
-    totalSize += chunk.byteLength;
+  const reader = body.getReader();
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      hasher.update(value);
+      writer.write(value);
+      totalSize += value.byteLength;
+    }
+  } finally {
+    reader.releaseLock();
   }
 
   await writer.end();
