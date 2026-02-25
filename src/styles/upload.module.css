@@ -1,0 +1,69 @@
+.page {
+  min-height: 100vh;
+  background: var(--bg-deep);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  color: var(--text);
+  padding: 24px;
+}
+
+.container { width: 100%; max-width: 560px; }
+.title { font-size: 18px; font-weight: 600; margin-bottom: 24px; color: var(--text); text-align: center; }
+
+.dropZone {
+  border: 2px dashed var(--border-hover);
+  border-radius: var(--radius-lg);
+  padding: 48px 32px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+.dropZone:hover { border-color: var(--accent); background: var(--accent-glow); }
+.dropZoneActive { border-color: var(--accent); border-style: solid; background: rgba(34, 211, 238, 0.12); }
+
+.dropIcon { font-size: 48px; margin-bottom: 16px; opacity: 0.6; }
+.dropText { font-size: 15px; color: var(--text-muted); margin-bottom: 16px; }
+.dropHint { font-size: 12px; color: var(--text-dim); margin-top: 12px; }
+
+.browseBtn {
+  display: inline-flex; align-items: center; gap: 6px; padding: 8px 20px;
+  border-radius: var(--radius-sm); font-size: 13px; font-family: inherit;
+  cursor: pointer; border: 1px solid var(--accent); background: transparent;
+  color: var(--accent); transition: background 0.15s;
+}
+.browseBtn:hover { background: var(--accent-glow); }
+
+.fileList { margin-top: 24px; }
+
+.fileItem {
+  display: flex; flex-direction: column; gap: 6px;
+  padding: 12px 16px; background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius); margin-bottom: 8px;
+}
+.fileHeader { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.fileName { font-size: 13px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+.fileSize { font-size: 12px; color: var(--text-muted); white-space: nowrap; }
+.fileStatus { font-size: 11px; font-weight: 600; white-space: nowrap; }
+
+.statusPending { color: var(--text-dim); }
+.statusUploading { color: var(--accent); }
+.statusComplete { color: var(--success); }
+.statusError { color: var(--error); }
+
+.progressTrack { height: 4px; background: var(--bg-surface); border-radius: 2px; overflow: hidden; }
+.progressBar { height: 100%; background: linear-gradient(90deg, var(--accent), #6366f1); border-radius: 2px; transition: width 0.2s ease; width: 0%; }
+
+.fileUrl { display: flex; align-items: center; gap: 8px; margin-top: 4px; }
+.fileUrlText { font-size: 12px; color: var(--accent); text-decoration: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.copyBtn {
+  background: none; border: 1px solid var(--border); color: var(--text-muted);
+  padding: 2px 8px; border-radius: 4px; cursor: pointer; font-family: inherit;
+  font-size: 11px; white-space: nowrap; transition: color 0.15s, border-color 0.15s;
+}
+.copyBtn:hover { color: var(--text); border-color: var(--border-hover); }
+
+.errorMsg { font-size: 12px; color: var(--error); margin-top: 2px; }
+.hidden { display: none; }
