@@ -6,7 +6,7 @@ RUN bun install --frozen-lockfile
 
 COPY . .
 
-# Pre-bundle CSS
+# Compile binary
 RUN bun run scripts/build.ts
 
 # Runtime stage — just the binary + sharp native deps
@@ -19,9 +19,6 @@ COPY --from=build /app/clawd-files /app/clawd-files
 # Copy sharp native bindings (optional, for thumbnails)
 COPY --from=build /app/node_modules/sharp /app/node_modules/sharp
 COPY --from=build /app/node_modules/@img /app/node_modules/@img
-
-# Static assets needed at runtime
-COPY --from=build /app/src/static /app/src/static
 
 RUN mkdir -p /data
 
