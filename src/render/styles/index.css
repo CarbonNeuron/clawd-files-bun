@@ -95,12 +95,11 @@
 }
 
 .lumen-markdown pre {
-  background: transparent;
-  border-radius: 0;
-  border-left: 3px solid rgba(34, 211, 238, 0.15);
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 8px;
   overflow-x: auto;
   margin: 1em 0;
-  padding: 14px 16px;
+  padding: 16px;
   font-size: 13px;
   line-height: 1.5;
 }
@@ -113,10 +112,9 @@
 
 /* Shiki code blocks inside markdown — override inline bg */
 .lumen-markdown pre.shiki {
-  background-color: transparent !important;
-  border-radius: 0;
-  border-left: 3px solid rgba(34, 211, 238, 0.15);
-  padding: 14px 16px;
+  background-color: rgba(0, 0, 0, 0.25) !important;
+  border-radius: 8px;
+  padding: 16px;
   font-size: 13px;
   line-height: 1.5;
   margin: 1em 0;
