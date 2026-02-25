@@ -172,6 +172,39 @@
   overflow-x: auto;
 }
 
+.csv-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+}
+
+.csv-filter {
+  flex: 1;
+  max-width: 320px;
+  padding: 6px 12px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  border-radius: 6px;
+  color: #e2e8f0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  outline: none;
+}
+
+.csv-filter:focus {
+  border-color: #22d3ee;
+}
+
+.csv-filter::placeholder {
+  color: #64748b;
+}
+
+.csv-count {
+  font-size: 12px;
+  color: #64748b;
+}
+
 .lumen-csv table {
   border-collapse: collapse;
   width: 100%;
@@ -183,20 +216,31 @@
   position: sticky;
   top: 0;
   font-weight: 600;
+  color: #94a3b8;
+  border-bottom: 2px solid rgba(148, 163, 184, 0.1);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.lumen-csv th.sortable:hover {
   color: #22d3ee;
-  border-bottom: 2px solid rgba(34, 211, 238, 0.3);
+}
+
+.lumen-csv th.sorted {
+  color: #22d3ee;
 }
 
 .lumen-csv th,
 .lumen-csv td {
   padding: 6px 12px;
-  border: 1px solid rgba(148, 163, 184, 0.1);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.06);
   text-align: left;
   white-space: nowrap;
 }
 
 .lumen-csv tr:nth-child(even) {
-  background: rgba(13, 17, 23, 0.5);
+  background: rgba(13, 17, 23, 0.3);
 }
 
 .lumen-csv tr:hover {

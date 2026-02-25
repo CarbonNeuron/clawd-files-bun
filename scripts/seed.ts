@@ -505,6 +505,32 @@ for (const { name, bg, text } of colors) {
   files.push([name, name.endsWith(".jpg") ? "image/jpeg" : "image/png", buf as any]);
 }
 
+// Generate large CSV (500 rows)
+console.log("Generating large CSV...");
+const csvHeader = "id,name,email,department,salary,start_date,status,city,country,performance_score";
+const departments = ["Engineering", "Marketing", "Sales", "Finance", "HR", "Design", "Support", "Legal", "Product", "Operations"];
+const statuses = ["active", "active", "active", "active", "on_leave", "terminated", "active", "probation"];
+const cities = ["San Francisco", "New York", "London", "Berlin", "Tokyo", "Sydney", "Toronto", "Austin", "Seattle", "Dublin", "Singapore", "Paris", "Amsterdam", "Stockholm", "Bangalore"];
+const countries: Record<string, string> = { "San Francisco": "US", "New York": "US", "Austin": "US", "Seattle": "US", London: "UK", Berlin: "DE", Tokyo: "JP", Sydney: "AU", Toronto: "CA", Dublin: "IE", Singapore: "SG", Paris: "FR", Amsterdam: "NL", Stockholm: "SE", Bangalore: "IN" };
+const firstNames = ["Alice", "Bob", "Charlie", "Diana", "Eve", "Frank", "Grace", "Hank", "Ivy", "Jack", "Kate", "Leo", "Mia", "Noah", "Olivia", "Pete", "Quinn", "Rose", "Sam", "Tina"];
+const lastNames = ["Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis", "Rodriguez", "Martinez", "Anderson", "Taylor", "Thomas", "Moore", "Jackson", "Lee", "Harris", "Clark", "Lewis", "Young"];
+
+const csvRows: string[] = [csvHeader];
+for (let i = 1; i <= 500; i++) {
+  const first = firstNames[Math.floor(Math.random() * firstNames.length)];
+  const last = lastNames[Math.floor(Math.random() * lastNames.length)];
+  const dept = departments[Math.floor(Math.random() * departments.length)];
+  const city = cities[Math.floor(Math.random() * cities.length)];
+  const salary = 45000 + Math.floor(Math.random() * 155000);
+  const year = 2018 + Math.floor(Math.random() * 8);
+  const month = String(1 + Math.floor(Math.random() * 12)).padStart(2, "0");
+  const day = String(1 + Math.floor(Math.random() * 28)).padStart(2, "0");
+  const status = statuses[Math.floor(Math.random() * statuses.length)];
+  const score = (1 + Math.random() * 4).toFixed(1);
+  csvRows.push(`${i},${first} ${last},${first.toLowerCase()}.${last.toLowerCase()}@example.com,${dept},${salary},${year}-${month}-${day},${status},${city},${countries[city]},${score}`);
+}
+files.push(["employees.csv", "text/csv", csvRows.join("\n")]);
+
 console.log(`Uploading ${files.length} files...`);
 
 const fd = new FormData();

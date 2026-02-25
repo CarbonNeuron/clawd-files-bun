@@ -200,13 +200,14 @@ test("11. markdown renders with README in bucket", async () => {
   expect(html).toContain("lumen-markdown"); // README rendered
 });
 
-test("12. CSV renders as table", async () => {
+test("12. CSV renders as interactive table", async () => {
   const res = await fetch(`${baseUrl}/${bucketId}/data.csv`, {
     headers: { Accept: "text/html" },
   });
   const html = await res.text();
   expect(html).toContain("lumen-csv");
-  expect(html).toContain("Alice");
+  expect(html).toContain("csv-filter");
+  expect(html).toContain("/view/table/");
 });
 
 test("13. JSON renders as tree", async () => {

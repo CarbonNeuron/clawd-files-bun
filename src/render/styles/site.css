@@ -123,6 +123,8 @@ a:hover { text-decoration: underline; }
 .file-table .file-meta { color: var(--text-muted); font-size: 12px; white-space: nowrap; }
 .file-table .file-meta a { color: var(--text-muted); }
 .file-table .file-meta a:hover { color: var(--accent); }
+.file-table th.sortable { cursor: pointer; user-select: none; }
+.file-table th.sortable:hover { color: var(--accent); }
 
 /* === View Toggle === */
 .view-toggle {

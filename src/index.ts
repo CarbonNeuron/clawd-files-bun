@@ -9,6 +9,7 @@ import { registerUploadLinkRoutes } from "./routes/upload-links";
 import { registerShortRoutes } from "./routes/short";
 import { registerPageRoutes } from "./routes/pages";
 import { registerDocRoutes } from "./routes/docs";
+import { registerTableViewerRoutes } from "./routes/table-viewer";
 import { buildStyles } from "./render/styles";
 import { preloadHighlighter } from "./render/code";
 import { startCleanupLoop, startStatsAggregation } from "./cleanup";
@@ -43,6 +44,7 @@ registerFileRoutes();
 registerUploadLinkRoutes();
 registerShortRoutes();
 registerDocRoutes();
+registerTableViewerRoutes();
 registerPageRoutes(); // Must be last — catch-all patterns
 
 // Start background tasks

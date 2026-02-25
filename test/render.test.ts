@@ -107,13 +107,14 @@ test("parseCsv handles empty CSV", () => {
   expect(rows).toEqual([]);
 });
 
-test("CSV renderer produces table HTML", async () => {
+test("CSV renderer produces interactive table viewer", async () => {
   const content = Buffer.from("name,age\nAlice,30\nBob,25");
   const html = await render(content, "data.csv", "text/csv");
   expect(html).toContain("lumen-csv");
-  expect(html).toContain("<table>");
-  expect(html).toContain("<th>name</th>");
-  expect(html).toContain("Alice");
+  expect(html).toContain("lumen-table-viewer");
+  expect(html).toContain("csv-filter");
+  expect(html).toContain("2 rows");
+  expect(html).toContain("/view/table/");
 });
 
 // ---- JSON Renderer ----

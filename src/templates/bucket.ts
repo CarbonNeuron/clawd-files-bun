@@ -82,11 +82,19 @@ export function bucketPage(bucket: BucketRow, files: FileRow[], readmeHtml?: str
       </button>
     </div>
 
+    <div style="margin-bottom:12px;">
+      <input type="text" class="csv-filter" id="file-filter" placeholder="Filter files..." oninput="filterFiles(this.value)" style="width:100%;max-width:320px;">
+    </div>
+
     <div id="file-view-list" class="file-view">
       <div class="card" style="padding:0;overflow:hidden;">
-        <table class="file-table">
+        <table class="file-table" id="file-table">
           <thead><tr>
-            <th style="width:32px;"></th><th>Name</th><th>Size</th><th>Uploaded</th><th>Short URL</th>
+            <th style="width:32px;"></th>
+            <th class="sortable" onclick="sortFiles('name')">Name <span id="sort-name"></span></th>
+            <th class="sortable" onclick="sortFiles('size')">Size <span id="sort-size"></span></th>
+            <th class="sortable" onclick="sortFiles('date')">Uploaded <span id="sort-date"></span></th>
+            <th>Short URL</th>
           </tr></thead>
           <tbody id="file-list">${listRows}</tbody>
         </table>
@@ -131,6 +139,75 @@ function setView(view) {
     b.classList.toggle('active', b.dataset.view === view);
   });
   localStorage.setItem('cf4-view', view);
+}
+
+var _sortCol = null, _sortDir = 'asc';
+
+function sortFiles(col) {
+  if (_sortCol === col) { _sortDir = _sortDir === 'asc' ? 'desc' : 'asc'; }
+  else { _sortCol = col; _sortDir = 'asc'; }
+  document.querySelectorAll('.file-table th span').forEach(function(s) { s.textContent = ''; });
+  var el = document.getElementById('sort-' + col);
+  if (el) el.textContent = _sortDir === 'asc' ? ' ↑' : ' ↓';
+  var tbody = document.getElementById('file-list');
+  var rows = Array.from(tbody.querySelectorAll('tr'));
+  rows.sort(function(a, b) {
+    var cells = { name: 1, size: 2, date: 3 };
+    var idx = cells[col] || 1;
+    var va = a.cells[idx].textContent.trim();
+    var vb = b.cells[idx].textContent.trim();
+    if (col === 'size') {
+      va = parseSize(va); vb = parseSize(vb);
+      return _sortDir === 'asc' ? va - vb : vb - va;
+    }
+    if (col === 'date') {
+      va = parseAge(va); vb = parseAge(vb);
+      return _sortDir === 'asc' ? va - vb : vb - va;
+    }
+    var cmp = va.localeCompare(vb);
+    return _sortDir === 'asc' ? cmp : -cmp;
+  });
+  rows.forEach(function(r) { tbody.appendChild(r); });
+  applyGridSort();
+}
+
+function parseSize(s) {
+  var m = s.match(/([\\d.]+)\\s*(B|KB|MB|GB|TB)/);
+  if (!m) return 0;
+  var units = { B: 1, KB: 1024, MB: 1048576, GB: 1073741824, TB: 1099511627776 };
+  return parseFloat(m[1]) * (units[m[2]] || 1);
+}
+
+function parseAge(s) {
+  if (s === 'just now') return 0;
+  var m = s.match(/(\\d+)(m|h|d|mo|y)/);
+  if (!m) return 0;
+  var units = { m: 60, h: 3600, d: 86400, mo: 2592000, y: 31536000 };
+  return parseInt(m[1]) * (units[m[2]] || 1);
+}
+
+function filterFiles(q) {
+  q = q.toLowerCase();
+  document.querySelectorAll('#file-list tr').forEach(function(row) {
+    var name = row.cells[1].textContent.toLowerCase();
+    row.style.display = name.includes(q) ? '' : 'none';
+  });
+  document.querySelectorAll('#file-grid .file-grid-item').forEach(function(card) {
+    var name = card.querySelector('.grid-name').textContent.toLowerCase();
+    card.style.display = name.includes(q) ? '' : 'none';
+  });
+}
+
+function applyGridSort() {
+  var grid = document.getElementById('file-grid');
+  if (!grid) return;
+  var items = Array.from(grid.querySelectorAll('.file-grid-item'));
+  var tbody = document.getElementById('file-list');
+  var order = Array.from(tbody.querySelectorAll('tr')).map(function(r) { return r.cells[1].textContent.trim(); });
+  items.sort(function(a, b) {
+    return order.indexOf(a.querySelector('.grid-name').textContent) - order.indexOf(b.querySelector('.grid-name').textContent);
+  });
+  items.forEach(function(it) { grid.appendChild(it); });
 }
 
 (function() {
