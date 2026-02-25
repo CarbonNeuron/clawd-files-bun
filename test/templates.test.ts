@@ -114,3 +114,42 @@ test("bucket page uses document icon for unknown MIME types, not folder", () => 
   expect(html).not.toContain("\u{1F4C1}");
   expect(html).toContain("\u{1F4C4}");
 });
+
+test("bucket page grid card renders code snippet when provided", () => {
+  const bucket: BucketRow = {
+    id: "test123456", name: "Test", description: "", purpose: "",
+    owner_key_hash: "hash", created_at: Math.floor(Date.now() / 1000),
+    expires_at: null, file_count: 1, total_size: 100,
+  };
+  const files: FileRow[] = [{
+    id: 1, bucket_id: "test123456", path: "app.ts",
+    size: 100, mime_type: "text/typescript",
+    short_code: "abc123", version: 1, sha256: "sha",
+    uploaded_at: Math.floor(Date.now() / 1000),
+  }];
+  const snippets = new Map<string, string>();
+  snippets.set("app.ts", '<pre class="shiki"><code>const x = 1;</code></pre>');
+  const html = bucketPage(bucket, files, undefined, snippets);
+  expect(html).toContain("gridCodePreview");
+  expect(html).toContain("const x = 1;");
+  expect(html).toContain("gridCodeFade");
+});
+
+test("bucket page grid card renders video element for video files", () => {
+  const bucket: BucketRow = {
+    id: "test123456", name: "Test", description: "", purpose: "",
+    owner_key_hash: "hash", created_at: Math.floor(Date.now() / 1000),
+    expires_at: null, file_count: 1, total_size: 5000,
+  };
+  const files: FileRow[] = [{
+    id: 1, bucket_id: "test123456", path: "clip.mp4",
+    size: 5000, mime_type: "video/mp4",
+    short_code: "vid123", version: 1, sha256: "sha",
+    uploaded_at: Math.floor(Date.now() / 1000),
+  }];
+  const html = bucketPage(bucket, files);
+  expect(html).toContain("<video");
+  expect(html).toContain("preload");
+  expect(html).toContain("gridVideoPreview");
+  expect(html).toContain("clip.mp4");
+});
