@@ -319,6 +319,50 @@ test("22. home page", async () => {
   expect(html).toContain("ClawdFiles");
 });
 
+// ---- Filenames with Special Characters ----
+
+test("23. upload and access file with # character in name", async () => {
+  const testFileName = "test#hashtag#file.txt";
+  const testContent = "File with hashtags in name";
+  
+  // Upload file with # in name
+  const fd = new FormData();
+  fd.append("files", new File([testContent], testFileName, { type: "text/plain" }));
+  const uploadRes = await fetch(`${baseUrl}/api/buckets/${bucketId}/upload`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${apiKey}` },
+    body: fd,
+  });
+  expect(uploadRes.status).toBe(201);
+  const uploadData = await uploadRes.json();
+  expect(uploadData.uploaded[0].path).toBe(testFileName);
+  
+  // Access raw file with encoded # in URL
+  const encodedFileName = encodeURIComponent(testFileName);
+  const rawRes = await fetch(`${baseUrl}/raw/${bucketId}/${encodedFileName}`);
+  expect(rawRes.status).toBe(200);
+  expect(await rawRes.text()).toBe(testContent);
+  
+  // Access file page HTML
+  const pageRes = await fetch(`${baseUrl}/${bucketId}/${encodedFileName}`, {
+    headers: { Accept: "text/html" },
+  });
+  expect(pageRes.status).toBe(200);
+  const html = await pageRes.text();
+  expect(html).toContain(testFileName);
+  // Check that links in HTML are properly encoded
+  expect(html).toContain(encodedFileName);
+  
+  // Check bucket page includes the file with encoded links
+  const bucketRes = await fetch(`${baseUrl}/${bucketId}`, {
+    headers: { Accept: "text/html" },
+  });
+  expect(bucketRes.status).toBe(200);
+  const bucketHtml = await bucketRes.text();
+  expect(bucketHtml).toContain(testFileName); // Display name
+  expect(bucketHtml).toContain(encodedFileName); // Encoded in href
+});
+
 // ---- Health Check ----
 
 test("23. health check", async () => {
