@@ -81,3 +81,33 @@ export async function hashFile(data: Blob): Promise<string> {
   hasher.update(await data.arrayBuffer());
   return hasher.digest("hex");
 }
+
+/**
+ * Stream-reassemble chunks from tempDir into the final file path,
+ * computing SHA-256 incrementally. Only one chunk buffer is in memory at a time.
+ */
+export async function reassembleChunks(
+  tempDir: string,
+  totalChunks: number,
+  bucketId: string,
+  filename: string,
+): Promise<{ sha256: string; size: number }> {
+  const dest = filePath(bucketId, filename);
+  await mkdir(dirname(dest), { recursive: true });
+
+  const hasher = new Bun.CryptoHasher("sha256");
+  const writer = Bun.file(dest).writer();
+  let totalSize = 0;
+
+  for (let i = 0; i < totalChunks; i++) {
+    const chunkFile = Bun.file(join(tempDir, `chunk_${i}`));
+    const buffer = await chunkFile.arrayBuffer();
+    hasher.update(buffer);
+    writer.write(buffer);
+    totalSize += buffer.byteLength;
+  }
+
+  await writer.end();
+
+  return { sha256: hasher.digest("hex") as string, size: totalSize };
+}

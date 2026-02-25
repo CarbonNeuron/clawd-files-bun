@@ -15,7 +15,7 @@ import {
   insertFileVersion,
   incrementDailyUploads,
 } from "../db";
-import { deleteBucketDir, writeFile, archiveVersion, hashFile } from "../storage";
+import { deleteBucketDir, archiveVersion, reassembleChunks } from "../storage";
 import { generateBucketId, parseExpiresIn, wantsJson, generateShortCode, getMimeType } from "../utils";
 import { notifyBucketChange, notifyFileChange } from "../websocket";
 import { config } from "../config";
@@ -88,26 +88,8 @@ export function registerBucketRoutes() {
 
     // Check if all chunks received
     if (upload.receivedChunks.size === totalChunks) {
-      // Reassemble chunks - read all chunks into buffers first
-      const buffers: Uint8Array[] = [];
-      for (let i = 0; i < totalChunks; i++) {
-        const cp = join(tempDir, `chunk_${i}`);
-        const chunkFile = Bun.file(cp);
-        buffers.push(new Uint8Array(await chunkFile.arrayBuffer()));
-      }
-      
-      // Concatenate all buffers
-      const totalLength = buffers.reduce((sum, buf) => sum + buf.length, 0);
-      const combined = new Uint8Array(totalLength);
-      let offset = 0;
-      for (const buf of buffers) {
-        combined.set(buf, offset);
-        offset += buf.length;
-      }
-      const completeFile = new Blob([combined]);
-
-      // Process as normal upload
-      const sha256 = await hashFile(completeFile);
+      // Stream-reassemble chunks to final file (one chunk in memory at a time)
+      const { sha256, size } = await reassembleChunks(tempDir, totalChunks, params.id, filename);
       const mimeType = getMimeType(filename);
 
       // Check for existing file (version handling)
@@ -117,15 +99,12 @@ export function registerBucketRoutes() {
         insertFileVersion(db, existing.id, existing.version, existing.size, existing.sha256);
       }
 
-      // Write to storage
-      await writeFile(params.id, filename, completeFile);
-
       // Upsert in DB
       const shortCode = existing?.short_code ?? generateShortCode();
-      upsertFile(db, params.id, filename, completeFile.size, mimeType, shortCode, sha256);
+      upsertFile(db, params.id, filename, size, mimeType, shortCode, sha256);
 
       const file = getFile(db, params.id, filename);
-      
+
       // Cleanup temp directory
       await rm(tempDir, { recursive: true, force: true });
       chunkedUploads.delete(uploadId);
@@ -134,13 +113,13 @@ export function registerBucketRoutes() {
       updateBucketStats(db, params.id);
       notifyBucketChange(params.id);
       notifyFileChange(params.id, filename);
-      incrementDailyUploads(db, 1, completeFile.size);
+      incrementDailyUploads(db, 1, size);
 
       return Response.json({
         complete: true,
         file: {
           path: filename,
-          size: completeFile.size,
+          size,
           mimeType,
           version: file?.version ?? 1,
           url: `${config.baseUrl}/${params.id}/${filename}`,
