@@ -8,6 +8,7 @@ import { registerFileRoutes } from "./routes/files";
 import { registerUploadLinkRoutes } from "./routes/upload-links";
 import { registerShortRoutes } from "./routes/short";
 import { registerPageRoutes } from "./routes/pages";
+import { registerDocRoutes } from "./routes/docs";
 import { buildStyles } from "./render/styles";
 import { preloadHighlighter } from "./render/code";
 import { startCleanupLoop, startStatsAggregation } from "./cleanup";
@@ -41,7 +42,8 @@ registerBucketRoutes();
 registerFileRoutes();
 registerUploadLinkRoutes();
 registerShortRoutes();
-registerPageRoutes();
+registerDocRoutes();
+registerPageRoutes(); // Must be last — catch-all patterns
 
 // Start background tasks
 startCleanupLoop();
