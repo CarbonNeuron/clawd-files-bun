@@ -76,6 +76,14 @@ export async function codeRenderer(content: Buffer, filename: string): Promise<s
   return `<div class="lumen-code">${html}</div>`;
 }
 
+export { EXT_TO_LANG, FILENAME_TO_LANG };
+
+export function getLangForFile(filename: string): string | null {
+  const basename = filename.split("/").pop() ?? filename;
+  const ext = filename.substring(filename.lastIndexOf(".")).toLowerCase();
+  return FILENAME_TO_LANG[basename] ?? EXT_TO_LANG[ext] ?? null;
+}
+
 // Register for all code file extensions
 const codeMimeTypes = [
   "text/typescript", "text/javascript", "application/javascript",
