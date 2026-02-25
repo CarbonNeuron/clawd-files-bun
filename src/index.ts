@@ -7,6 +7,13 @@ import { registerBucketRoutes } from "./routes/buckets";
 import { registerFileRoutes } from "./routes/files";
 import { registerUploadLinkRoutes } from "./routes/upload-links";
 import { registerShortRoutes } from "./routes/short";
+import { registerPageRoutes } from "./routes/pages";
+import { buildStyles } from "./render/styles";
+import { preloadHighlighter } from "./render/code";
+import { startCleanupLoop, startStatsAggregation } from "./cleanup";
+
+// Import all renderers to register them
+import "./render/index";
 
 // Ensure data directories exist
 await ensureDataDirs();
@@ -14,12 +21,31 @@ await ensureDataDirs();
 // Initialize database
 getDb();
 
-// Register all routes
+// Build CSS and preload Shiki in parallel
+const [styles] = await Promise.all([
+  buildStyles(),
+  preloadHighlighter(),
+]);
+
+// Build site CSS
+const siteCssResult = await Bun.build({
+  entrypoints: ["./src/render/styles/site.css"],
+  minify: true,
+});
+const siteCss = await siteCssResult.outputs[0].text();
+const siteCssEtag = Bun.hash(siteCss).toString(16);
+
+// Register all routes (order matters — API routes first, then catch-all page routes)
 registerKeyRoutes();
 registerBucketRoutes();
 registerFileRoutes();
 registerUploadLinkRoutes();
 registerShortRoutes();
+registerPageRoutes();
+
+// Start background tasks
+startCleanupLoop();
+startStatsAggregation();
 
 const server = Bun.serve({
   port: config.port,
@@ -29,6 +55,24 @@ const server = Bun.serve({
     "/static/htmx.min.js": () => new Response(Bun.file("src/static/htmx.min.js"), {
       headers: { "Content-Type": "application/javascript", "Cache-Control": "public, max-age=31536000, immutable" },
     }),
+    "/render/styles.css": () => {
+      return new Response(styles.css, {
+        headers: {
+          "Content-Type": "text/css",
+          "Cache-Control": "public, max-age=31536000, immutable",
+          ETag: styles.etag,
+        },
+      });
+    },
+    "/site/styles.css": () => {
+      return new Response(siteCss, {
+        headers: {
+          "Content-Type": "text/css",
+          "Cache-Control": "public, max-age=31536000, immutable",
+          ETag: siteCssEtag,
+        },
+      });
+    },
   },
 
   async fetch(req, server) {
@@ -38,8 +82,9 @@ const server = Bun.serve({
     if (req.headers.get("upgrade") === "websocket") {
       const wsMatch = url.pathname.match(/^\/ws\/bucket\/(.+)$/);
       if (wsMatch) {
-        server.upgrade(req, { data: { bucketId: wsMatch[1] } });
-        return undefined;
+        const upgraded = server.upgrade(req, { data: { bucketId: wsMatch[1] } });
+        if (upgraded) return undefined;
+        return new Response("WebSocket upgrade failed", { status: 500 });
       }
       return new Response("Bad WebSocket path", { status: 400 });
     }
@@ -55,7 +100,7 @@ const server = Bun.serve({
       }
     }
 
-    return Response.json({ error: "Not found" }, { status: 404 });
+    return new Response("Not Found", { status: 404 });
   },
 
   websocket: {
@@ -66,7 +111,6 @@ const server = Bun.serve({
       }
     },
     message(ws, message) {
-      // Handle subscribe commands
       try {
         const msg = JSON.parse(String(message));
         if (msg.type === "subscribe" && msg.bucketId) {
@@ -76,7 +120,7 @@ const server = Bun.serve({
         // Ignore invalid messages
       }
     },
-    close(ws) {
+    close(_ws) {
       // Cleanup handled by Bun
     },
   },
