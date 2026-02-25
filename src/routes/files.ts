@@ -15,6 +15,7 @@ import {
 } from "../db";
 import {
   streamWriteFile,
+  streamWriteFromBody,
   readFile,
   deleteStoredFile,
   archiveVersion,
@@ -92,6 +93,66 @@ export function registerFileRoutes() {
     const totalBytes = uploadedFiles.reduce((sum, f) => sum + f.size, 0);
     incrementDailyUploads(db, uploadedFiles.length, totalBytes);
     return Response.json({ uploaded: uploadedFiles }, { status: 201 });
+  });
+
+  // Streaming single-file upload — bypasses formData() buffering entirely.
+  // Client sends raw file body with filename in X-Filename header.
+  addRoute("PUT", "/api/buckets/:id/upload/:filename+", async (req, params) => {
+    const db = getDb();
+    const auth = validateRequest(req, db);
+    if (!auth.authenticated) {
+      return Response.json({ error: auth.error }, { status: 401 });
+    }
+
+    const bucket = getBucket(db, params.id);
+    if (!bucket) {
+      return Response.json({ error: "Bucket not found" }, { status: 404 });
+    }
+
+    if (!auth.isAdmin && bucket.owner_key_hash !== auth.keyHash) {
+      return Response.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    const fileName = params.filename;
+    if (!fileName) {
+      return Response.json({ error: "Filename required in URL" }, { status: 400 });
+    }
+
+    if (!req.body) {
+      return Response.json({ error: "Empty body" }, { status: 400 });
+    }
+
+    const { sha256, size } = await streamWriteFromBody(params.id, fileName, req.body);
+    const mimeType = getMimeType(fileName);
+
+    const existing = getFile(db, params.id, fileName);
+    if (existing) {
+      await archiveVersion(params.id, fileName, existing.version);
+      insertFileVersion(db, existing.id, existing.version, existing.size, existing.sha256);
+    }
+
+    const shortCode = existing?.short_code ?? generateShortCode();
+    upsertFile(db, params.id, fileName, size, mimeType, shortCode, sha256);
+
+    const file = getFile(db, params.id, fileName);
+    const sc = file?.short_code ?? shortCode;
+
+    updateBucketStats(db, params.id);
+    notifyBucketChange(params.id);
+    notifyFileChange(params.id, fileName);
+    incrementDailyUploads(db, 1, size);
+
+    return Response.json({
+      uploaded: [{
+        path: fileName,
+        size,
+        mimeType,
+        version: file?.version ?? 1,
+        url: `${config.baseUrl}/${params.id}/${fileName}`,
+        rawUrl: `${config.baseUrl}/raw/${params.id}/${fileName}`,
+        shortUrl: `${config.baseUrl}/s/${sc}`,
+      }],
+    }, { status: 201 });
   });
 
   // Delete file

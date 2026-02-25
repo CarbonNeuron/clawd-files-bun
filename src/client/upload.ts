@@ -84,11 +84,9 @@ function uploadSingleFile(file: File) {
   item.append(header, track);
   fileListEl.appendChild(item);
 
-  // XHR upload
-  const fd = new FormData();
-  fd.append("files", file);
+  // XHR upload — PUT raw body (no FormData) to avoid server-side buffering
   const xhr = new XMLHttpRequest();
-  xhr.open("POST", "/api/upload/" + data.token);
+  xhr.open("PUT", "/api/upload/" + data.token + "/" + encodeURIComponent(file.name));
 
   statusEl.textContent = "0%";
   statusEl.className = s.fileStatus + " " + s.statusUploading;
@@ -157,5 +155,5 @@ function uploadSingleFile(file: File) {
     item.appendChild(errEl);
   };
 
-  xhr.send(fd);
+  xhr.send(file);
 }

@@ -1,7 +1,7 @@
 import { addRoute } from "../router";
 import { validateRequest, generateUploadToken, validateUploadToken } from "../auth";
 import { getDb, getBucket, getFile, upsertFile, updateBucketStats, insertFileVersion, incrementDailyUploads } from "../db";
-import { streamWriteFile, archiveVersion } from "../storage";
+import { streamWriteFile, streamWriteFromBody, archiveVersion } from "../storage";
 import { generateShortCode, getMimeType } from "../utils";
 import { notifyBucketChange, notifyFileChange } from "../websocket";
 import { config } from "../config";
@@ -94,6 +94,47 @@ export function registerUploadLinkRoutes() {
     notifyBucketChange(result.bucketId);
     for (const f of uploadedFiles) notifyFileChange(result.bucketId, f.path);
     return Response.json({ uploaded: uploadedFiles }, { status: 201 });
+  });
+
+  // Streaming single-file upload via token — bypasses formData() buffering.
+  addRoute("PUT", "/api/upload/:token/:filename+", async (req, params) => {
+    const result = validateUploadToken(params.token);
+    if (!result.valid) {
+      return Response.json({ error: result.error }, { status: 401 });
+    }
+
+    const db = getDb();
+    const bucket = getBucket(db, result.bucketId);
+    if (!bucket) {
+      return Response.json({ error: "Bucket not found" }, { status: 404 });
+    }
+
+    const fileName = params.filename;
+    if (!fileName) {
+      return Response.json({ error: "Filename required in URL" }, { status: 400 });
+    }
+
+    if (!req.body) {
+      return Response.json({ error: "Empty body" }, { status: 400 });
+    }
+
+    const { sha256, size } = await streamWriteFromBody(result.bucketId, fileName, req.body);
+    const mimeType = getMimeType(fileName);
+
+    const existing = getFile(db, result.bucketId, fileName);
+    if (existing) {
+      await archiveVersion(result.bucketId, fileName, existing.version);
+      insertFileVersion(db, existing.id, existing.version, existing.size, existing.sha256);
+    }
+
+    const shortCode = existing?.short_code ?? generateShortCode();
+    upsertFile(db, result.bucketId, fileName, size, mimeType, shortCode, sha256);
+
+    updateBucketStats(db, result.bucketId);
+    notifyBucketChange(result.bucketId);
+    notifyFileChange(result.bucketId, fileName);
+
+    return Response.json({ uploaded: [{ path: fileName, size, shortCode }] }, { status: 201 });
   });
 
   // Upload page (GET) — drag-and-drop HTML upload
