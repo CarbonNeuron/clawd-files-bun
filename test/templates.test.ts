@@ -1,16 +1,21 @@
-import { test, expect } from "bun:test";
+import { test, expect, beforeAll } from "bun:test";
 import { layout } from "../src/templates/layout";
 import { homePage } from "../src/templates/home";
 import { bucketPage } from "../src/templates/bucket";
 import { filePage } from "../src/templates/file";
+import { buildClientJs } from "../src/client-bundle";
 import type { BucketRow, FileRow, VersionRow } from "../src/db";
+
+beforeAll(async () => {
+  await buildClientJs();
+});
 
 test("layout renders HTML document shell", () => {
   const html = layout({ title: "Test", content: "<p>Hello</p>" });
   expect(html).toContain("<!DOCTYPE html>");
   expect(html).toContain("<title>Test — ClawdFiles</title>");
   expect(html).toContain("ClawdFiles");
-  expect(html).toContain("htmx.min.js");
+  expect(html).toContain("<style>");
   expect(html).toContain("<p>Hello</p>");
 });
 
@@ -51,7 +56,7 @@ test("bucket page renders file table", () => {
   expect(html).toContain("app.ts");
   expect(html).toContain("2 files");
   expect(html).toContain("no expiry");
-  expect(html).toContain("/ws/bucket/test123456");
+  expect(html).toContain('"bucketId":"test123456"');
 });
 
 test("file page renders preview and metadata", () => {
@@ -90,5 +95,5 @@ test("file page renders preview and metadata", () => {
   expect(html).toContain("Version History");
   expect(html).toContain("abc123");
   expect(html).toContain("Download");
-  expect(html).toContain("preview-container");
+  expect(html).toContain("previewContainer");
 });

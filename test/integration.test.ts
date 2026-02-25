@@ -51,14 +51,13 @@ beforeAll(async () => {
   registerPageRoutes();
 
   const { matchRoute } = await import("../src/router");
-  const { buildStyles } = await import("../src/render/styles");
-  const styles = await buildStyles();
+  const { buildClientJs } = await import("../src/client-bundle");
+  await buildClientJs();
 
   server = Bun.serve({
     port: 0,
     routes: {
       "/health": new Response("ok"),
-      "/render/styles.css": () => new Response(styles.css, { headers: { "Content-Type": "text/css" } }),
     },
     async fetch(req) {
       const url = new URL(req.url);
