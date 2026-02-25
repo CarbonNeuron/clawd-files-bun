@@ -20,6 +20,9 @@ COPY --from=build /app/clawd-files /app/clawd-files
 COPY --from=build /app/node_modules/sharp /app/node_modules/sharp
 COPY --from=build /app/node_modules/@img /app/node_modules/@img
 
+# Pre-built client JS bundles (compiled binary can't run Bun.build at runtime)
+COPY --from=build /app/src/generated /app/src/generated
+
 RUN mkdir -p /data
 
 ENV DATA_DIR=/data
