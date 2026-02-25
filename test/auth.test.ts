@@ -6,8 +6,8 @@ import {
   validateRequest,
   generateUploadToken,
   validateUploadToken,
-} from "./auth";
-import { createTestDb, insertApiKey } from "./db";
+} from "../src/auth";
+import { createTestDb, insertApiKey } from "../src/db";
 
 test("generateApiKey returns valid format", () => {
   const { key, prefix, keyHash } = generateApiKey();

@@ -2,7 +2,7 @@ import { test, expect, beforeEach, afterEach } from "bun:test";
 
 test("config uses default values", async () => {
   // Re-import to get fresh config with current env
-  const { config, dbPath, filesDir } = await import("./config");
+  const { config, dbPath, filesDir } = await import("../src/config");
   expect(config.port).toBe(5109);
   expect(config.dataDir).toBe("./data");
   expect(config.baseUrl).toBe("http://localhost:5109");
@@ -13,7 +13,7 @@ test("config uses default values", async () => {
 });
 
 test("config reads ADMIN_KEY from env", async () => {
-  const { config } = await import("./config");
+  const { config } = await import("../src/config");
   // ADMIN_KEY is set in .env
   expect(config.adminKey).toBe("dev-admin-key-change-in-production");
 });

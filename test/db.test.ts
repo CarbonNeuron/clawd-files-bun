@@ -24,7 +24,7 @@ import {
   upsertDailyStats,
   getDailyStatsRange,
   aggregateCurrentStats,
-} from "./db";
+} from "../src/db";
 import type { Database } from "bun:sqlite";
 
 let db: Database;

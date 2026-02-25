@@ -9,7 +9,7 @@ import {
   formatBytes,
   formatRelativeDate,
   parseExpiresIn,
-} from "./utils";
+} from "../src/utils";
 
 test("generateShortCode returns correct length", () => {
   expect(generateShortCode(6)).toHaveLength(6);
