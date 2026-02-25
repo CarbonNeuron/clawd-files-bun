@@ -21,6 +21,7 @@ import {
   getFilePath,
 } from "../storage";
 import { generateShortCode, getMimeType, formatBytes } from "../utils";
+import { getThumbnail } from "../thumbnails";
 import yazl from "yazl";
 
 export function registerFileRoutes() {
@@ -261,6 +262,20 @@ export function registerFileRoutes() {
       headers: {
         "Content-Type": "application/zip",
         "Content-Disposition": `attachment; filename="${safeName}.zip"`,
+      },
+    });
+  });
+
+  // Thumbnail
+  addRoute("GET", "/api/buckets/:id/thumb/:path+", async (_req, params) => {
+    const thumb = await getThumbnail(params.id, params.path);
+    if (!thumb) {
+      return new Response(null, { status: 404 });
+    }
+    return new Response(thumb, {
+      headers: {
+        "Content-Type": "image/webp",
+        "Cache-Control": "public, max-age=31536000, immutable",
       },
     });
   });

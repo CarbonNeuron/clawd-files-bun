@@ -479,11 +479,37 @@ seed:
 `],
 ];
 
+// Generate sample PNG images using sharp
+console.log("Generating sample images...");
+const sharp = (await import("sharp")).default;
+
+const colors = [
+  { name: "banner.png", bg: "#22d3ee", text: "ClawdFiles" },
+  { name: "gradient.png", bg: "#06090f", text: "" },
+  { name: "photo-placeholder.jpg", bg: "#1e293b", text: "Photo" },
+];
+
+for (const { name, bg, text } of colors) {
+  const svg = `<svg width="800" height="400" xmlns="http://www.w3.org/2000/svg">
+    <defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:${bg}"/>
+      <stop offset="100%" style="stop-color:#0d1117"/>
+    </linearGradient></defs>
+    <rect width="800" height="400" fill="url(#g)"/>
+    ${text ? `<text x="400" y="210" text-anchor="middle" font-family="monospace" font-size="48" font-weight="bold" fill="#e2e8f0">${text}</text>` : ""}
+    <text x="400" y="260" text-anchor="middle" font-family="monospace" font-size="16" fill="#94a3b8">800 × 400 sample image</text>
+  </svg>`;
+  const buf = name.endsWith(".jpg")
+    ? await sharp(Buffer.from(svg)).jpeg({ quality: 80 }).toBuffer()
+    : await sharp(Buffer.from(svg)).png().toBuffer();
+  files.push([name, name.endsWith(".jpg") ? "image/jpeg" : "image/png", buf as any]);
+}
+
 console.log(`Uploading ${files.length} files...`);
 
 const fd = new FormData();
 for (const [name, _mime, content] of files) {
-  fd.append("files", new File([content], name));
+  fd.append("files", new File([content instanceof Buffer ? content : content], name));
 }
 
 const { uploaded } = await api(`/api/buckets/${bucket.id}/upload`, {

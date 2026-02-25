@@ -124,6 +124,74 @@ a:hover { text-decoration: underline; }
 .file-table .file-meta a { color: var(--text-muted); }
 .file-table .file-meta a:hover { color: var(--accent); }
 
+/* === View Toggle === */
+.view-toggle {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+.view-btn { gap: 4px; font-size: 12px; padding: 5px 12px; }
+.view-btn.active { color: var(--accent); border-color: var(--accent); }
+.view-btn svg { vertical-align: -2px; }
+
+/* === File Grid === */
+.file-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+}
+.file-grid-item {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  text-decoration: none;
+  color: var(--text);
+  transition: border-color 0.15s;
+}
+.file-grid-item:hover {
+  border-color: var(--accent);
+  text-decoration: none;
+}
+.grid-preview {
+  aspect-ratio: 1;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.grid-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.grid-icon {
+  font-size: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+}
+.grid-info {
+  padding: 10px 12px;
+  border-top: 1px solid var(--border);
+}
+.grid-name {
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.grid-meta {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
 /* === Breadcrumbs === */
 .breadcrumbs {
   display: flex;
