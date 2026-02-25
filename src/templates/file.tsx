@@ -1,6 +1,6 @@
 import { Raw } from "../jsx/jsx-runtime";
 import { layout } from "./layout.tsx";
-import { escapeHtml, formatBytes, formatRelativeDate } from "../utils";
+import { escapeHtml, encodeFilePath, formatBytes, formatRelativeDate } from "../utils";
 import { config } from "../config";
 import type { BucketRow, FileRow, VersionRow } from "../db";
 
@@ -12,7 +12,7 @@ export function filePage(
 ): string {
   const bucketName = escapeHtml(bucket.name);
   const fileName = escapeHtml(file.path);
-  const rawUrl = `/raw/${bucket.id}/${escapeHtml(file.path)}`;
+  const rawUrl = `/raw/${bucket.id}/${encodeFilePath(file.path)}`;
   const shortUrl = `${escapeHtml(config.baseUrl)}/s/${escapeHtml(file.short_code)}`;
   const mime = file.mime_type;
   const isMedia = mime.startsWith("video/") || mime.startsWith("audio/");
@@ -31,7 +31,7 @@ export function filePage(
         <div style="padding:6px 0;font-size:13px;color:var(--accent);">v{file.version} (current) — {formatBytes(file.size)}</div>
         {versions.map((v) => (
           <div style="padding:6px 0;font-size:13px;border-top:1px solid var(--border);">
-            <a href={`/raw/${bucket.id}/${escapeHtml(file.path)}?v=${v.version}`}>v{v.version}</a>
+            <a href={`/raw/${bucket.id}/${encodeFilePath(file.path)}?v=${v.version}`}>v{v.version}</a>
             {" — "}{formatBytes(v.size)}{" — "}{formatRelativeDate(v.created_at)}
           </div>
         )).join("")}
@@ -42,7 +42,7 @@ export function filePage(
   const curlCmd = `curl -LJO ${shortUrl}`;
   const copyCmd = <div class="copy-cmd"><code>{curlCmd}</code><button onclick="navigator.clipboard.writeText(this.previousElementSibling.textContent)">copy</button></div>;
 
-  const escapedPath = escapeHtml(file.path);
+  const escapedPath = encodeFilePath(file.path);
   const preview = isMedia ? mediaPlayer : (
     <div class={`preview-container${isDataView ? " preview-wide" : ""}`}>
       <div class="preview-header">

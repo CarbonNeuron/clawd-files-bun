@@ -9,6 +9,7 @@ import {
   formatBytes,
   formatRelativeDate,
   parseExpiresIn,
+  encodeFilePath,
 } from "../src/utils";
 
 test("generateShortCode returns correct length", () => {
@@ -103,4 +104,25 @@ test("parseExpiresIn parses duration strings", () => {
   expect(parseExpiresIn("never")).toBeNull();
   expect(parseExpiresIn("")).toBeNull();
   expect(parseExpiresIn("invalid")).toBeNull();
+});
+
+test("encodeFilePath encodes special characters", () => {
+  // Test # character encoding
+  expect(encodeFilePath("file#name.txt")).toBe("file%23name.txt");
+  expect(encodeFilePath("test#hashtag#file.txt")).toBe("test%23hashtag%23file.txt");
+  
+  // Test other special characters
+  expect(encodeFilePath("file name.txt")).toBe("file%20name.txt");
+  expect(encodeFilePath("file&name.txt")).toBe("file%26name.txt");
+  expect(encodeFilePath("file?name.txt")).toBe("file%3Fname.txt");
+  
+  // Test emoji and unicode
+  expect(encodeFilePath("file💔🙏.txt")).toBe("file%F0%9F%92%94%F0%9F%99%8F.txt");
+  
+  // Test the example filename from the problem statement
+  const testName = "Broken neck prank on my girlfriend 💔🙏#youtubeshorts #youtubeforyou #subscribe #like #funnyshorts - Buttonboy7gz.mp4";
+  const encoded = encodeFilePath(testName);
+  expect(encoded).toContain("%23"); // # is encoded
+  expect(encoded).toContain("%20"); // spaces are encoded
+  expect(encoded).not.toContain("#"); // no raw # characters
 });

@@ -1,5 +1,5 @@
 import type { Server } from "bun";
-import { escapeHtml, formatBytes, formatRelativeDate } from "./utils";
+import { escapeHtml, encodeFilePath, formatBytes, formatRelativeDate } from "./utils";
 import { listFiles, getDb } from "./db";
 import type { FileRow } from "./db";
 
@@ -27,10 +27,10 @@ function fileRowHtml(bucketId: string, f: FileRow): string {
   const icon = getFileIcon(f.mime_type);
   return `<tr>
     <td class="file-icon">${icon}</td>
-    <td class="file-name"><a href="/${bucketId}/${escapeHtml(f.path)}">${escapeHtml(f.path)}</a></td>
+    <td class="file-name"><a href="/${bucketId}/${encodeFilePath(f.path)}">${escapeHtml(f.path)}</a></td>
     <td class="file-meta">${formatBytes(f.size)}</td>
     <td class="file-meta">${formatRelativeDate(f.uploaded_at)}</td>
-    <td class="file-meta"><a href="/raw/${bucketId}/${escapeHtml(f.path)}" download class="btn" style="padding:2px 10px;font-size:11px;">Download</a></td>
+    <td class="file-meta"><a href="/raw/${bucketId}/${encodeFilePath(f.path)}" download class="btn" style="padding:2px 10px;font-size:11px;">Download</a></td>
   </tr>`;
 }
 

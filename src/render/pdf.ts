@@ -1,4 +1,5 @@
 import { registerRenderer } from "./registry";
+import { encodeFilePath } from "../utils";
 import type { RenderContext } from "./registry";
 
 async function pdfRenderer(
@@ -7,7 +8,7 @@ async function pdfRenderer(
   context?: RenderContext
 ): Promise<string> {
   const bucketId = context?.bucketId ?? "";
-  const rawUrl = `/raw/${bucketId}/${filename}`;
+  const rawUrl = `/raw/${bucketId}/${encodeFilePath(filename)}`;
   const name = Bun.escapeHTML(filename);
 
   return `<div class="lumen-pdf">

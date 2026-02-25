@@ -132,3 +132,11 @@ export function parseExpiresIn(str: string): number | null {
   const multipliers: Record<string, number> = { h: 3600, d: 86400, w: 604800, m: 2592000 };
   return now + value * multipliers[unit];
 }
+
+/**
+ * Encodes a file path for use in URLs.
+ * This ensures special characters like # are properly encoded as %23.
+ */
+export function encodeFilePath(path: string): string {
+  return encodeURIComponent(path);
+}
