@@ -43,7 +43,8 @@ export function filePage(
       </details>`
     : "";
 
-  const copyCmd = `<div class="copy-cmd"><code>${shortUrl}</code><button onclick="navigator.clipboard.writeText(this.previousElementSibling.textContent)">copy</button></div>`;
+  const curlCmd = `curl -LJO ${shortUrl}`;
+  const copyCmd = `<div class="copy-cmd"><code>${curlCmd}</code><button onclick="navigator.clipboard.writeText(this.previousElementSibling.textContent)">copy</button></div>`;
 
   return layout({
     title: `${file.path} — ${bucket.name}`,
