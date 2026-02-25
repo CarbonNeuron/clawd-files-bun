@@ -11,6 +11,7 @@
       "#jsx/jsx-runtime": ["./src/jsx/jsx-runtime.ts"],
       "#jsx/jsx-dev-runtime": ["./src/jsx/jsx-dev-runtime.ts"]
     },
+    "types": ["bun-types", "./src/css-modules.d.ts"],
     "allowJs": true,
 
     // Bundler mode

@@ -4,7 +4,8 @@
   "type": "module",
   "private": true,
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "bun-css-modules": "^1.0.11"
   },
   "peerDependencies": {
     "typescript": "^5"
