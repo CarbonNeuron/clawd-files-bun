@@ -224,6 +224,13 @@ a:hover { text-decoration: underline; }
 }
 .preview-body { padding: 0; overflow-x: auto; }
 
+/* Wide preview — breaks out of .container for data-heavy views */
+.preview-wide {
+  width: calc(100vw - 48px);
+  max-width: none;
+  margin-left: calc(-1 * (100vw - 48px - 100%) / 2);
+}
+
 /* === Stats Grid === */
 .stats-grid {
   display: grid;

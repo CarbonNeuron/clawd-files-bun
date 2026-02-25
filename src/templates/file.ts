@@ -16,6 +16,7 @@ export function filePage(
   const mime = file.mime_type;
 
   const isMedia = mime.startsWith("video/") || mime.startsWith("audio/");
+  const isDataView = mime === "text/csv" || mime === "application/json";
 
   let mediaPlayer = "";
   if (mime.startsWith("video/")) {
@@ -73,7 +74,7 @@ export function filePage(
       ${copyCmd}
 
       ${isMedia ? mediaPlayer : `
-      <div class="preview-container">
+      <div class="preview-container${isDataView ? " preview-wide" : ""}">
         <div class="preview-header">
           <span>Preview</span>
           <div>
