@@ -1,5 +1,6 @@
 import { addRoute } from "../router";
 import { validateRequest } from "../auth";
+import { notifyBucketChange } from "../websocket";
 import {
   getDb,
   getBucket,
@@ -87,6 +88,7 @@ export function registerFileRoutes() {
     }
 
     updateBucketStats(db, params.id);
+    notifyBucketChange(params.id);
     return Response.json({ uploaded: uploadedFiles }, { status: 201 });
   });
 
@@ -115,6 +117,7 @@ export function registerFileRoutes() {
     await deleteStoredFile(params.id, params.path);
     deleteFile(db, params.id, params.path);
     updateBucketStats(db, params.id);
+    notifyBucketChange(params.id);
 
     return Response.json({ deleted: true });
   });
@@ -133,6 +136,26 @@ export function registerFileRoutes() {
 
   // Raw file serving
   addRoute("GET", "/raw/:bucketId/:path+", async (req, params) => {
+    const url = new URL(req.url);
+    const versionParam = url.searchParams.get("v");
+
+    // Serve specific version
+    if (versionParam) {
+      const version = parseInt(versionParam, 10);
+      const bunFile = readVersion(params.bucketId, params.path, version);
+      const exists = await bunFile.exists();
+      if (!exists) {
+        return new Response("Version not found", { status: 404 });
+      }
+      const mimeType = getMimeType(params.path);
+      return new Response(bunFile, {
+        headers: {
+          "Content-Type": mimeType,
+          "Content-Disposition": `inline; filename="${params.path.split("/").pop()}"`,
+        },
+      });
+    }
+
     const bunFile = readFile(params.bucketId, params.path);
     const exists = await bunFile.exists();
     if (!exists) {
@@ -191,24 +214,6 @@ export function registerFileRoutes() {
         "Accept-Ranges": "bytes",
         ETag: etag,
         "Cache-Control": "public, max-age=31536000, immutable",
-      },
-    });
-  });
-
-  // Raw version serving
-  addRoute("GET", "/raw/:bucketId/:path+/v/:version", async (req, params) => {
-    const version = parseInt(params.version, 10);
-    const bunFile = readVersion(params.bucketId, params.path, version);
-    const exists = await bunFile.exists();
-    if (!exists) {
-      return new Response("Version not found", { status: 404 });
-    }
-
-    const mimeType = getMimeType(params.path);
-    return new Response(bunFile, {
-      headers: {
-        "Content-Type": mimeType,
-        "Content-Disposition": `inline; filename="${params.path.split("/").pop()}"`,
       },
     });
   });

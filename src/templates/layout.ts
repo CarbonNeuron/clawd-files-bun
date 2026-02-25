@@ -15,8 +15,7 @@ export function layout({ title, content, scripts, head }: LayoutOptions): string
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>${safeTitle} — ClawdFiles</title>
-  <link rel="stylesheet" href="/render/styles.css">
-  <link rel="stylesheet" href="/site/styles.css">
+  <link rel="stylesheet" href="/styles.css">
   ${head ?? ""}
 </head>
 <body>

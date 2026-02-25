@@ -36,7 +36,7 @@ export function filePage(
           <div style="padding:6px 0;font-size:13px;color:var(--accent);">v${file.version} (current) — ${formatBytes(file.size)}</div>
           ${versions.map((v) => `
             <div style="padding:6px 0;font-size:13px;border-top:1px solid var(--border);">
-              <a href="/raw/${bucket.id}/${escapeHtml(file.path)}/v/${v.version}">v${v.version}</a>
+              <a href="/raw/${bucket.id}/${escapeHtml(file.path)}?v=${v.version}">v${v.version}</a>
               — ${formatBytes(v.size)} — ${formatRelativeDate(v.created_at)}
             </div>
           `).join("")}

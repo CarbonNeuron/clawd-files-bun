@@ -13,6 +13,7 @@ import { registerTableViewerRoutes } from "./routes/table-viewer";
 import { buildStyles, buildSiteStyles } from "./render/styles";
 import { preloadHighlighter } from "./render/code";
 import { startCleanupLoop, startStatsAggregation } from "./cleanup";
+import { setServer } from "./websocket";
 import * as log from "./logger";
 
 // Import all renderers to register them
@@ -34,8 +35,8 @@ const [styles, siteStyles] = await Promise.all([
 ]);
 log.info("CSS built, Shiki loaded");
 
-const siteCss = siteStyles.css;
-const siteCssEtag = siteStyles.etag;
+const combinedCss = styles.css + "\n" + siteStyles.css;
+const combinedCssEtag = Bun.hash(combinedCss).toString(16);
 
 // Register all routes (order matters — API routes first, then catch-all page routes)
 registerKeyRoutes();
@@ -61,21 +62,12 @@ const server = Bun.serve({
     "/static/htmx.min.js": () => new Response(Bun.file("src/static/htmx.min.js"), {
       headers: { "Content-Type": "application/javascript", "Cache-Control": "public, max-age=31536000, immutable" },
     }),
-    "/render/styles.css": () => {
-      return new Response(styles.css, {
+    "/styles.css": () => {
+      return new Response(combinedCss, {
         headers: {
           "Content-Type": "text/css",
           "Cache-Control": "public, max-age=31536000, immutable",
-          ETag: styles.etag,
-        },
-      });
-    },
-    "/site/styles.css": () => {
-      return new Response(siteCss, {
-        headers: {
-          "Content-Type": "text/css",
-          "Cache-Control": "public, max-age=31536000, immutable",
-          ETag: siteCssEtag,
+          ETag: combinedCssEtag,
         },
       });
     },
@@ -142,6 +134,7 @@ const server = Bun.serve({
   },
 });
 
+setServer(server);
 log.info(`ClawdFiles v4 running at http://localhost:${server.port}`);
 
 export { server };

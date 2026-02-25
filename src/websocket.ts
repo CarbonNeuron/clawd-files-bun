@@ -1,15 +1,20 @@
 import type { Server } from "bun";
 import { escapeHtml, formatBytes, formatRelativeDate } from "./utils";
+import { listFiles, getDb } from "./db";
 import type { FileRow } from "./db";
 
-export function notifyBucketChange(
-  server: Server,
-  bucketId: string,
-  files: FileRow[]
-): void {
-  // Publish updated file list HTML to all subscribers
+let _server: Server | null = null;
+
+export function setServer(server: Server) {
+  _server = server;
+}
+
+export function notifyBucketChange(bucketId: string): void {
+  if (!_server) return;
+  const db = getDb();
+  const files = listFiles(db, bucketId);
   const html = files.map((f) => fileRowHtml(bucketId, f)).join("");
-  server.publish(`bucket:${bucketId}`, html);
+  _server.publish(`bucket:${bucketId}`, html);
 }
 
 function fileRowHtml(bucketId: string, f: FileRow): string {
@@ -19,7 +24,7 @@ function fileRowHtml(bucketId: string, f: FileRow): string {
     <td class="file-name"><a href="/${bucketId}/${escapeHtml(f.path)}">${escapeHtml(f.path)}</a></td>
     <td class="file-meta">${formatBytes(f.size)}</td>
     <td class="file-meta">${formatRelativeDate(f.uploaded_at)}</td>
-    <td class="file-meta"><a href="/s/${escapeHtml(f.short_code)}">s/${escapeHtml(f.short_code)}</a></td>
+    <td class="file-meta"><a href="/raw/${bucketId}/${escapeHtml(f.path)}" download class="btn" style="padding:2px 10px;font-size:11px;">Download</a></td>
   </tr>`;
 }
 

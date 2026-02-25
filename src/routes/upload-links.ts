@@ -3,6 +3,7 @@ import { validateRequest, generateUploadToken, validateUploadToken } from "../au
 import { getDb, getBucket, getFile, upsertFile, updateBucketStats, insertFileVersion } from "../db";
 import { writeFile as writeStorageFile, archiveVersion, hashFile } from "../storage";
 import { generateShortCode, getMimeType } from "../utils";
+import { notifyBucketChange } from "../websocket";
 import { config } from "../config";
 
 export function registerUploadLinkRoutes() {
@@ -91,6 +92,7 @@ export function registerUploadLinkRoutes() {
     }
 
     updateBucketStats(db, result.bucketId);
+    notifyBucketChange(result.bucketId);
     return Response.json({ uploaded: uploadedFiles }, { status: 201 });
   });
 
