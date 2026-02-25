@@ -362,6 +362,60 @@ test("23. upload and access file with # character in name", async () => {
   expect(bucketHtml).toContain(encodedFileName); // Encoded in href
 });
 
+// ---- Large File Upload Memory Test ----
+
+test("large upload does not buffer entire file in memory", async () => {
+  // Create a new bucket for this test
+  const bucketRes = await fetch(`${baseUrl}/api/buckets`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ name: "Memory Test Bucket" }),
+  });
+  const { bucket } = await bucketRes.json();
+
+  // Generate a 100MB file as a Blob of repeated chunks
+  const chunkSize = 1024 * 1024; // 1MB
+  const totalSize = 100 * chunkSize; // 100MB
+  const chunk = new Uint8Array(chunkSize);
+  for (let i = 0; i < chunkSize; i++) chunk[i] = i & 0xff;
+  const chunks: Uint8Array[] = [];
+  for (let i = 0; i < 100; i++) chunks.push(chunk);
+  const bigFile = new File(chunks, "big-test-file.bin");
+
+  // Build FormData before measuring — this allocates test-side memory
+  const fd = new FormData();
+  fd.append("files", bigFile);
+
+  // Force GC and measure RSS after all test-side allocations are done
+  Bun.gc(true);
+  const rssBefore = process.memoryUsage.rss();
+
+  const uploadRes = await fetch(`${baseUrl}/api/buckets/${bucket.id}/upload`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${apiKey}` },
+    body: fd,
+  });
+  expect(uploadRes.status).toBe(201);
+  const data = await uploadRes.json();
+  expect(data.uploaded[0].size).toBe(totalSize);
+
+  // Force GC and measure RSS after upload
+  Bun.gc(true);
+  const rssAfter = process.memoryUsage.rss();
+  const rssGrowth = rssAfter - rssBefore;
+
+  // Server should not have buffered the full 100MB file in memory.
+  // Allow up to 80MB growth for overhead (temp file I/O buffers, hash state, etc.)
+  // but the key assertion is it's well under 100MB (the file size).
+  expect(rssGrowth).toBeLessThan(80 * 1024 * 1024);
+
+  // Clean up
+  await fetch(`${baseUrl}/api/buckets/${bucket.id}`, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${apiKey}` },
+  });
+});
+
 // ---- Health Check ----
 
 test("23. health check", async () => {
