@@ -44,6 +44,15 @@ All write operations require a Bearer token in the Authorization header.
 ### Short URLs
 - GET /s/:code — Redirect to raw file
 
+### Streaming Upload (large files)
+- PUT /api/buckets/:id/upload/:filename — Stream raw file body to disk (no multipart, no buffering)
+- PUT /api/upload/:token/:filename — Stream upload via token (no auth needed)
+  Note: For files over a few hundred MB, prefer PUT over POST to avoid memory buffering.
+
+### Admin Dashboard
+- POST /api/admin/dashboard-link — Generate a time-limited admin dashboard URL (admin only, expires in 24h)
+- GET /admin?token=:token — Admin dashboard page showing stats, API keys, and all buckets
+
 ### Utilities
 - GET /api/buckets/:id/summary — Plain text summary (LLM-friendly)
 - GET /api/buckets/:id/zip — Download all files as ZIP
