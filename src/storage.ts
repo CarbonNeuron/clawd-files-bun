@@ -111,6 +111,8 @@ export async function streamWriteFromBody(
   const hasher = new Bun.CryptoHasher("sha256");
   const writer = Bun.file(dest).writer();
   let totalSize = 0;
+  let unflushed = 0;
+  const FLUSH_THRESHOLD = 4 * 1024 * 1024; // flush to disk every 4MB
 
   const reader = body.getReader();
   try {
@@ -120,6 +122,11 @@ export async function streamWriteFromBody(
       hasher.update(value);
       writer.write(value);
       totalSize += value.byteLength;
+      unflushed += value.byteLength;
+      if (unflushed >= FLUSH_THRESHOLD) {
+        await writer.flush();
+        unflushed = 0;
+      }
     }
   } finally {
     reader.releaseLock();
