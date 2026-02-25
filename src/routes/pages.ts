@@ -86,7 +86,7 @@ export function registerPageRoutes() {
       renderedContent = `<div class="lumen-no-preview"><p>File not found on disk.</p></div>`;
     }
 
-    // Return just the fragment for htmx requests
+    // Return just the fragment for AJAX requests
     if (isFragment) {
       return new Response(renderedContent, {
         headers: { "Content-Type": "text/html; charset=utf-8" },

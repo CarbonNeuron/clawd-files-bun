@@ -65,3 +65,77 @@ document.querySelectorAll("[data-action]").forEach(function (btn) {
     });
   });
 });
+
+// CSV table viewer interactivity
+(function () {
+  var previewBody = document.getElementById("preview-body");
+  if (!previewBody) return;
+
+  function fetchTableContent(url: string): void {
+    var target = document.getElementById("csv-table-body");
+    if (!target) return;
+    fetch(url)
+      .then(function (r) { return r.text(); })
+      .then(function (html) {
+        var el = document.getElementById("csv-table-body");
+        if (el) el.innerHTML = html;
+      });
+  }
+
+  // Auto-load: fetch initial table content for [data-csv-autoload] elements
+  function initAutoload(): void {
+    var el = previewBody!.querySelector("[data-csv-autoload]") as HTMLElement | null;
+    if (el && el.dataset.csvAutoload) {
+      fetchTableContent(el.dataset.csvAutoload);
+    }
+  }
+
+  // Run autoload on initial page load
+  initAutoload();
+
+  // Observe #preview-body for content changes (WebSocket updates, source/rendered toggle)
+  // so we can re-trigger autoload when new CSV content appears
+  var observer = new MutationObserver(function () {
+    initAutoload();
+  });
+  observer.observe(previewBody, { childList: true });
+
+  // Event delegation for pagination and sort clicks
+  previewBody.addEventListener("click", function (e) {
+    var target = e.target as HTMLElement;
+
+    // Pagination links
+    var pageLink = target.closest("[data-csv-page]") as HTMLElement | null;
+    if (pageLink && pageLink.dataset.csvPage) {
+      e.preventDefault();
+      fetchTableContent(pageLink.dataset.csvPage);
+      return;
+    }
+
+    // Sort headers
+    var sortHeader = target.closest("[data-csv-sort]") as HTMLElement | null;
+    if (sortHeader && sortHeader.dataset.csvSort) {
+      e.preventDefault();
+      fetchTableContent(sortHeader.dataset.csvSort);
+      return;
+    }
+  });
+
+  // Debounced filter input
+  var filterTimer: ReturnType<typeof setTimeout> | null = null;
+  previewBody.addEventListener("input", function (e) {
+    var target = e.target as HTMLElement;
+    if (!target.hasAttribute("data-csv-filter")) return;
+
+    var input = target as HTMLInputElement;
+    var viewerUrl = input.dataset.csvViewer;
+    if (!viewerUrl) return;
+
+    if (filterTimer) clearTimeout(filterTimer);
+    filterTimer = setTimeout(function () {
+      var filterValue = input.value;
+      var url = viewerUrl + (filterValue ? "?filter=" + encodeURIComponent(filterValue) : "");
+      fetchTableContent(url);
+    }, 300);
+  });
+})();

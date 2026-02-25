@@ -147,11 +147,10 @@ async function csvRenderer(content: Buffer, filename: string, context?: RenderCo
   return `<div class="lumen-csv lumen-table-viewer">
   <div class="csv-toolbar">
     <input type="text" class="csv-filter" placeholder="Filter rows..."
-      hx-get="${viewerUrl}" hx-trigger="keyup changed delay:300ms" hx-target="#csv-table-body"
-      hx-include="this" name="filter">
+      data-csv-filter data-csv-viewer="${viewerUrl}" name="filter">
     <span class="csv-count">${dataRows.length.toLocaleString()} rows</span>
   </div>
-  <div id="csv-table-body" hx-get="${viewerUrl}" hx-trigger="load" hx-swap="innerHTML">
+  <div id="csv-table-body" data-csv-autoload="${viewerUrl}">
   </div>
 </div>`;
 }
@@ -178,11 +177,11 @@ export function renderTableFragment(
     }
     let p = `<div class="pagination">`;
     if (page > 1) {
-      p += `<a hx-get="${viewerUrl}?page=${page - 1}${sortParam}${filterParam}" hx-target="#csv-table-body" hx-swap="innerHTML">← Prev</a>`;
+      p += `<a href="#" data-csv-page="${viewerUrl}?page=${page - 1}${sortParam}${filterParam}">← Prev</a>`;
     }
     p += `<span>Page ${page} of ${totalPages} (${total.toLocaleString()} rows)</span>`;
     if (page < totalPages) {
-      p += `<a hx-get="${viewerUrl}?page=${page + 1}${sortParam}${filterParam}" hx-target="#csv-table-body" hx-swap="innerHTML">Next →</a>`;
+      p += `<a href="#" data-csv-page="${viewerUrl}?page=${page + 1}${sortParam}${filterParam}">Next →</a>`;
     }
     p += `</div>`;
     return p;
@@ -196,8 +195,7 @@ export function renderTableFragment(
     const nextDir = isActive && currentDir === "asc" ? "desc" : "asc";
     const arrow = isActive ? (currentDir === "desc" ? " ↓" : " ↑") : "";
     html += `<th class="sortable${isActive ? " sorted" : ""}"
-      hx-get="${viewerUrl}?sort=${encodeURIComponent(h)}&dir=${nextDir}&page=1${filterParam}"
-      hx-target="#csv-table-body" hx-swap="innerHTML"
+      data-csv-sort="${viewerUrl}?sort=${encodeURIComponent(h)}&dir=${nextDir}&page=1${filterParam}"
       style="cursor:pointer">${Bun.escapeHTML(h)}${arrow}</th>`;
   }
   html += `</tr></thead><tbody>`;
