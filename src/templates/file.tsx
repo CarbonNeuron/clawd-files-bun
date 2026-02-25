@@ -2,6 +2,10 @@ import { Raw } from "../jsx/jsx-runtime";
 import { layout } from "./layout.tsx";
 import { escapeHtml, encodeFilePath, formatBytes, formatRelativeDate } from "../utils";
 import { config } from "../config";
+import { getClientJs } from "../client-bundle";
+import fileStyles from "../styles/file.module.css";
+import layoutStyles from "../styles/layout.module.css";
+import renderStyles from "../styles/render.module.css";
 import type { BucketRow, FileRow, VersionRow } from "../db";
 
 export function filePage(
@@ -25,12 +29,12 @@ export function filePage(
     : null;
 
   const versionList = versions.length > 0 ? (
-    <details style="margin-top:16px;">
-      <summary style="cursor:pointer;color:var(--text-muted);font-size:13px;">Version History ({versions.length + 1} versions)</summary>
+    <details class={fileStyles.versionDetails}>
+      <summary class={fileStyles.versionSummary}>Version History ({versions.length + 1} versions)</summary>
       <div style="margin-top:8px;">
-        <div style="padding:6px 0;font-size:13px;color:var(--accent);">v{file.version} (current) — {formatBytes(file.size)}</div>
+        <div class={fileStyles.versionCurrent}>v{file.version} (current) — {formatBytes(file.size)}</div>
         {versions.map((v) => (
-          <div style="padding:6px 0;font-size:13px;border-top:1px solid var(--border);">
+          <div class={fileStyles.versionItem}>
             <a href={`/raw/${bucket.id}/${encodeFilePath(file.path)}?v=${v.version}`}>v{v.version}</a>
             {" — "}{formatBytes(v.size)}{" — "}{formatRelativeDate(v.created_at)}
           </div>
@@ -40,47 +44,56 @@ export function filePage(
   ) : null;
 
   const curlCmd = `curl -LJO ${shortUrl}`;
-  const copyCmd = <div class="copy-cmd"><code>{curlCmd}</code><button onclick="navigator.clipboard.writeText(this.previousElementSibling.textContent)">copy</button></div>;
+  const copyCmd = <div class={layoutStyles.copyCmd}><code>{curlCmd}</code><button onclick="navigator.clipboard.writeText(this.previousElementSibling.textContent)">copy</button></div>;
 
   const escapedPath = encodeFilePath(file.path);
   const preview = isMedia ? mediaPlayer : (
-    <div class={`preview-container${isDataView ? " preview-wide" : ""}`}>
-      <div class="preview-header">
+    <div class={isDataView ? `${fileStyles.previewContainer} ${fileStyles.previewWide}` : fileStyles.previewContainer}>
+      <div class={fileStyles.previewHeader}>
         <span>Preview</span>
-        <div>
-          <a href={`/${bucket.id}/${escapedPath}?view=raw`} class="btn" style="padding:2px 8px;font-size:11px;"
-             hx-get={`/${bucket.id}/${escapedPath}?view=raw&fragment=1`}
-             hx-target="#preview-body" hx-swap="innerHTML">Source</a>
-          <a href={`/${bucket.id}/${escapedPath}`} class="btn" style="padding:2px 8px;font-size:11px;"
-             hx-get={`/${bucket.id}/${escapedPath}?fragment=1`}
-             hx-target="#preview-body" hx-swap="innerHTML">Rendered</a>
+        <div class={fileStyles.previewActions}>
+          <button class={`${layoutStyles.btn} ${fileStyles.previewBtn}`}
+            data-action="source">Source</button>
+          <button class={`${layoutStyles.btn} ${fileStyles.previewBtn} ${fileStyles.previewBtnActive}`}
+            data-action="rendered">Rendered</button>
         </div>
       </div>
-      <div class="preview-body" id="preview-body">
+      <div class={fileStyles.previewBody} id="preview-body">
         <Raw html={renderedContent} />
       </div>
     </div>
   );
 
+  const pageData = JSON.stringify({
+    bucketId: bucket.id,
+    filePath: file.path,
+    styles: {
+      previewBtnActive: fileStyles.previewBtnActive,
+    },
+  });
+
+  const head = `<style>${fileStyles.cssText}${renderStyles.cssText}</style><script type="application/json" id="pageData">${pageData}</script>`;
+  const scripts = `<script>${getClientJs("file")}</script>`;
+
   const content = (
     <>
-      <div class="breadcrumbs">
-        <a href="/">home</a><span class="sep">/</span>
-        <a href={`/${bucket.id}`}><Raw html={bucketName} /></a><span class="sep">/</span>
+      <div class={layoutStyles.breadcrumbs}>
+        <a href="/" class={layoutStyles.breadcrumbLink}>home</a><span class={layoutStyles.breadcrumbSep}>/</span>
+        <a href={`/${bucket.id}`} class={layoutStyles.breadcrumbLink}><Raw html={bucketName} /></a><span class={layoutStyles.breadcrumbSep}>/</span>
         <span><Raw html={fileName} /></span>
       </div>
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+      <div class={fileStyles.headerRow}>
         <h2><Raw html={fileName} /></h2>
-        <div style="display:flex;gap:8px;">
-          <a href={rawUrl} class="btn" download>Download</a>
-          <a href={rawUrl} class="btn btn-primary" target="_blank">Raw</a>
+        <div class={fileStyles.headerActions}>
+          <a href={rawUrl} class={layoutStyles.btn} download>Download</a>
+          <a href={rawUrl} class={`${layoutStyles.btn} ${layoutStyles.btnPrimary}`} target="_blank">Raw</a>
         </div>
       </div>
-      <div class="metadata">
-        <span class="badge badge-accent">{escapeHtml(mime)}</span>
-        <span class="badge">{formatBytes(file.size)}</span>
-        <span class="badge">v{file.version}</span>
-        <span class="badge">{formatRelativeDate(file.uploaded_at)}</span>
+      <div class={layoutStyles.metadata}>
+        <span class={`${layoutStyles.badge} ${layoutStyles.badgeAccent}`}>{escapeHtml(mime)}</span>
+        <span class={layoutStyles.badge}>{formatBytes(file.size)}</span>
+        <span class={layoutStyles.badge}>v{file.version}</span>
+        <span class={layoutStyles.badge}>{formatRelativeDate(file.uploaded_at)}</span>
       </div>
       {copyCmd}
       {preview}
@@ -88,28 +101,5 @@ export function filePage(
     </>
   );
 
-  const scripts = `
-<script>
-(function() {
-  var proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
-  var ws = new WebSocket(proto + '//' + location.host + '/ws/file/${bucket.id}/${encodeURIComponent(file.path)}');
-  ws.onmessage = function(e) {
-    try {
-      var msg = JSON.parse(e.data);
-      if (msg.type === 'updated') {
-        // Fetch updated preview fragment
-        fetch('/${bucket.id}/${encodeURIComponent(file.path)}?fragment=1')
-          .then(function(r) { return r.text(); })
-          .then(function(html) {
-            var el = document.getElementById('preview-body');
-            if (el) el.innerHTML = html;
-          });
-      }
-    } catch(err) {}
-  };
-  ws.onclose = function() { setTimeout(function() { location.reload(); }, 3000); };
-})();
-</script>`;
-
-  return layout({ title: `${file.path} — ${bucket.name}`, content, scripts });
+  return layout({ title: `${file.path} — ${bucket.name}`, content, head, scripts });
 }
