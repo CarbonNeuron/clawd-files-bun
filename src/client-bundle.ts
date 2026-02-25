@@ -8,6 +8,7 @@ export async function buildClientJs(): Promise<void> {
       "./src/client/upload.ts",
       "./src/client/bucket.ts",
       "./src/client/file.ts",
+      "./src/client/admin.ts",
     ],
     minify: true,
   });

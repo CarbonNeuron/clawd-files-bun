@@ -1,6 +1,10 @@
 import { Raw } from "../jsx/jsx-runtime";
 import { layout } from "./layout.tsx";
 import { escapeHtml, formatBytes, formatRelativeDate } from "../utils";
+import { getClientJs } from "../client-bundle";
+import adminStyles from "../styles/admin.module.css";
+import bucketStyles from "../styles/bucket.module.css";
+import layoutStyles from "../styles/layout.module.css";
 import type { BucketRow } from "../db";
 
 type AdminStats = {
@@ -20,30 +24,28 @@ type KeyInfo = {
 export function adminPage(stats: AdminStats, keys: KeyInfo[], buckets: BucketRow[]): string {
   const content = (
     <>
-      <h1 style="margin-bottom:24px;">Admin Dashboard</h1>
-      <div class="stats-grid">
-        <div class="stat-card"><div class="stat-value">{stats.totalBuckets}</div><div class="stat-label">Buckets</div></div>
-        <div class="stat-card"><div class="stat-value">{stats.totalFiles}</div><div class="stat-label">Files</div></div>
-        <div class="stat-card"><div class="stat-value">{formatBytes(stats.totalSize)}</div><div class="stat-label">Total Storage</div></div>
-        <div class="stat-card"><div class="stat-value">{stats.keyCount}</div><div class="stat-label">API Keys</div></div>
+      <h1 class={adminStyles.title}>Admin Dashboard</h1>
+      <div class={adminStyles.statsGrid}>
+        <div class={adminStyles.statCard}><div class={adminStyles.statValue}>{stats.totalBuckets}</div><div class={adminStyles.statLabel}>Buckets</div></div>
+        <div class={adminStyles.statCard}><div class={adminStyles.statValue}>{stats.totalFiles}</div><div class={adminStyles.statLabel}>Files</div></div>
+        <div class={adminStyles.statCard}><div class={adminStyles.statValue}>{formatBytes(stats.totalSize)}</div><div class={adminStyles.statLabel}>Total Storage</div></div>
+        <div class={adminStyles.statCard}><div class={adminStyles.statValue}>{stats.keyCount}</div><div class={adminStyles.statLabel}>API Keys</div></div>
       </div>
       {keys.length > 0 ? (
         <>
-          <h2 style="margin-bottom:16px;">API Keys</h2>
-          <div class="card" style="overflow-x:auto;">
-            <table class="file-table">
-              <thead><tr><th>Prefix</th><th>Name</th><th>Created</th><th>Last Used</th><th></th></tr></thead>
+          <h2 class={adminStyles.sectionTitle}>API Keys</h2>
+          <div class={layoutStyles.card} style="overflow-x:auto;">
+            <table class={bucketStyles.fileTable}>
+              <thead><tr><th class={bucketStyles.fileTableHead}>Prefix</th><th class={bucketStyles.fileTableHead}>Name</th><th class={bucketStyles.fileTableHead}>Created</th><th class={bucketStyles.fileTableHead}>Last Used</th><th class={bucketStyles.fileTableHead}></th></tr></thead>
               <tbody>
                 {keys.map((k) => (
-                  <tr>
-                    <td><code>{escapeHtml(k.prefix)}</code></td>
-                    <td>{escapeHtml(k.name)}</td>
-                    <td class="file-meta">{formatRelativeDate(k.created_at)}</td>
-                    <td class="file-meta">{k.last_used ? formatRelativeDate(k.last_used) : "never"}</td>
-                    <td><button class="btn" style="padding:2px 8px;font-size:11px;color:var(--error);"
-                        hx-delete={`/api/keys/${escapeHtml(k.prefix)}`}
-                        hx-confirm={`Revoke key ${escapeHtml(k.prefix)}?`}
-                        hx-target="closest tr" hx-swap="outerHTML">Revoke</button></td>
+                  <tr class={bucketStyles.fileTableRow}>
+                    <td class={bucketStyles.fileTableCell}><code>{escapeHtml(k.prefix)}</code></td>
+                    <td class={bucketStyles.fileTableCell}>{escapeHtml(k.name)}</td>
+                    <td class={`${bucketStyles.fileTableCell} ${bucketStyles.fileMeta}`}>{formatRelativeDate(k.created_at)}</td>
+                    <td class={`${bucketStyles.fileTableCell} ${bucketStyles.fileMeta}`}>{k.last_used ? formatRelativeDate(k.last_used) : "never"}</td>
+                    <td class={bucketStyles.fileTableCell}><button class={`${layoutStyles.btn} ${adminStyles.revokeBtn}`}
+                        data-revoke={escapeHtml(k.prefix)}>Revoke</button></td>
                   </tr>
                 )).join("")}
               </tbody>
@@ -53,19 +55,19 @@ export function adminPage(stats: AdminStats, keys: KeyInfo[], buckets: BucketRow
       ) : null}
       {buckets.length > 0 ? (
         <>
-          <h2 style="margin:32px 0 16px;">All Buckets</h2>
-          <div class="card" style="overflow-x:auto;">
-            <table class="file-table">
-              <thead><tr><th>ID</th><th>Name</th><th>Files</th><th>Size</th><th>Created</th><th>Expires</th></tr></thead>
+          <h2 class={adminStyles.sectionTitle}>All Buckets</h2>
+          <div class={layoutStyles.card} style="overflow-x:auto;">
+            <table class={bucketStyles.fileTable}>
+              <thead><tr><th class={bucketStyles.fileTableHead}>ID</th><th class={bucketStyles.fileTableHead}>Name</th><th class={bucketStyles.fileTableHead}>Files</th><th class={bucketStyles.fileTableHead}>Size</th><th class={bucketStyles.fileTableHead}>Created</th><th class={bucketStyles.fileTableHead}>Expires</th></tr></thead>
               <tbody>
                 {buckets.map((b) => (
-                  <tr>
-                    <td><a href={`/${b.id}`}><code>{b.id}</code></a></td>
-                    <td>{escapeHtml(b.name)}</td>
-                    <td>{b.file_count}</td>
-                    <td>{formatBytes(b.total_size)}</td>
-                    <td class="file-meta">{formatRelativeDate(b.created_at)}</td>
-                    <td class="file-meta">{b.expires_at ? formatRelativeDate(b.expires_at) : "never"}</td>
+                  <tr class={bucketStyles.fileTableRow}>
+                    <td class={bucketStyles.fileTableCell}><a href={`/${b.id}`}><code>{b.id}</code></a></td>
+                    <td class={bucketStyles.fileTableCell}>{escapeHtml(b.name)}</td>
+                    <td class={bucketStyles.fileTableCell}>{b.file_count}</td>
+                    <td class={bucketStyles.fileTableCell}>{formatBytes(b.total_size)}</td>
+                    <td class={`${bucketStyles.fileTableCell} ${bucketStyles.fileMeta}`}>{formatRelativeDate(b.created_at)}</td>
+                    <td class={`${bucketStyles.fileTableCell} ${bucketStyles.fileMeta}`}>{b.expires_at ? formatRelativeDate(b.expires_at) : "never"}</td>
                   </tr>
                 )).join("")}
               </tbody>
@@ -76,5 +78,8 @@ export function adminPage(stats: AdminStats, keys: KeyInfo[], buckets: BucketRow
     </>
   );
 
-  return layout({ title: "Admin Dashboard", content });
+  const head = `<style>${adminStyles.cssText}${bucketStyles.cssText}</style>`;
+  const scripts = `<script>${getClientJs("admin")}</script>`;
+
+  return layout({ title: "Admin Dashboard", content, head, scripts });
 }

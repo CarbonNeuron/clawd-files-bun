@@ -1,0 +1,8 @@
+/* Admin dashboard */
+.title { margin-bottom: 24px; }
+.statsGrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 32px; }
+.statCard { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
+.statValue { font-size: 28px; font-weight: 700; color: var(--accent); }
+.statLabel { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+.sectionTitle { margin: 32px 0 16px; }
+.revokeBtn { padding: 2px 8px; font-size: 11px; color: var(--error); }
