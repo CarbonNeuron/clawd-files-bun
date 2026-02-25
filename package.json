@@ -12,7 +12,6 @@
   },
   "dependencies": {
     "@types/markdown-it": "^14.1.2",
-    "htmx.org": "^2.0.8",
     "markdown-it": "^14.1.1",
     "sharp": "^0.34.5",
     "shiki": "^3.22.0",

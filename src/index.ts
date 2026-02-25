@@ -11,7 +11,6 @@ import { registerPageRoutes } from "./routes/pages";
 import { registerDocRoutes } from "./routes/docs";
 import { registerTableViewerRoutes } from "./routes/table-viewer";
 import { registerAdminRoutes } from "./routes/admin";
-import { buildStyles } from "./render/styles";
 import { buildClientJs } from "./client-bundle";
 import { preloadHighlighter } from "./render/code";
 import { startCleanupLoop, startStatsAggregation } from "./cleanup";
@@ -29,13 +28,12 @@ log.info("Data directories ready");
 getDb();
 log.info("Database initialized");
 
-// Build CSS and preload Shiki in parallel
-const [styles] = await Promise.all([
-  buildStyles(),
+// Build client JS and preload Shiki in parallel
+await Promise.all([
   buildClientJs(),
   preloadHighlighter(),
 ]);
-log.info("CSS built, Shiki loaded");
+log.info("Client JS built, Shiki loaded");
 
 // Register all routes (order matters — API routes first, then catch-all page routes)
 registerKeyRoutes();
@@ -61,18 +59,6 @@ const server = Bun.serve({
 
   routes: {
     "/health": new Response("ok"),
-    "/static/htmx.min.js": () => new Response(Bun.file("src/static/htmx.min.js"), {
-      headers: { "Content-Type": "application/javascript", "Cache-Control": "public, max-age=31536000, immutable" },
-    }),
-    "/styles.css": () => {
-      return new Response(styles.css, {
-        headers: {
-          "Content-Type": "text/css",
-          "Cache-Control": "public, max-age=31536000, immutable",
-          ETag: styles.etag,
-        },
-      });
-    },
   },
 
   async fetch(req, server) {
