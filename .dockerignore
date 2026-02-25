@@ -1,0 +1,10 @@
+node_modules
+data
+.git
+.worktrees
+.env
+*.tgz
+coverage
+.cache
+.idea
+.DS_Store
