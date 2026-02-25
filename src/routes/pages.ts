@@ -86,7 +86,7 @@ export function registerPageRoutes() {
     }
 
     const url = new URL(req.url);
-    const viewRaw = url.searchParams.get("view") === "raw";
+    const view = url.searchParams.get("view");
     const isFragment = url.searchParams.get("fragment") === "1";
 
     const bunFile = readFile(params.bucketId, params.path);
@@ -94,10 +94,16 @@ export function registerPageRoutes() {
 
     if (await bunFile.exists()) {
       const content = Buffer.from(await bunFile.arrayBuffer());
-      if (viewRaw) {
-        // Show raw source with code highlighting
+      if (view === "raw") {
+        // Show raw source as plain text
         const code = content.toString("utf-8");
         renderedContent = `<pre style="padding:16px;overflow-x:auto;font-size:13px;"><code>${Bun.escapeHTML(code)}</code></pre>`;
+      } else if (view === "code") {
+        // Show syntax-highlighted code view
+        const code = content.toString("utf-8");
+        const lang = getLangForFile(params.path) ?? "text";
+        const html = await highlightCode(code, lang);
+        renderedContent = `<div class="lumen-code">${html}</div>`;
       } else if (content.length > config.maxRenderSize) {
         renderedContent = `<div class="lumen-no-preview"><p>File too large to preview (${(content.length / 1024 / 1024).toFixed(1)} MB). <a href="/raw/${bucket.id}/${encodeFilePath(file.path)}">Download raw file</a>.</p></div>`;
       } else {

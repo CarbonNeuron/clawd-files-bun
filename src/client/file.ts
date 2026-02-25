@@ -42,10 +42,11 @@ document.querySelectorAll("[data-action]").forEach(function (btn) {
   btn.addEventListener("click", function (e) {
     e.preventDefault();
     const action = (btn as HTMLElement).dataset.action;
-    const isSource = action === "source";
+    var viewParam = action === "source" ? "?view=raw&fragment=1"
+      : action === "code" ? "?view=code&fragment=1"
+      : "?fragment=1";
     const url =
-      "/" + data.bucketId + "/" + encodeURIComponent(data.filePath) +
-      (isSource ? "?view=raw&fragment=1" : "?fragment=1");
+      "/" + data.bucketId + "/" + encodeURIComponent(data.filePath) + viewParam;
 
     fetch(url)
       .then(function (r) { return r.text(); })

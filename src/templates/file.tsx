@@ -2,6 +2,7 @@ import { Raw } from "../jsx/jsx-runtime";
 import { layout } from "./layout.tsx";
 import { escapeHtml, encodeFilePath, formatBytes, formatRelativeDate } from "../utils";
 import { config } from "../config";
+import { getLangForFile } from "../render/code";
 import { getClientJs } from "../client-bundle";
 import { cssText } from "../css-text";
 import fileStyles from "../styles/file.module.css";
@@ -48,6 +49,7 @@ export function filePage(
   const copyCmd = <div class={layoutStyles.copyCmd}><code>{curlCmd}</code><button class={layoutStyles.copyCmdBtn} onclick="navigator.clipboard.writeText(this.previousElementSibling.textContent)">copy</button></div>;
 
   const escapedPath = encodeFilePath(file.path);
+  const hasCodeView = !!getLangForFile(file.path);
   const preview = isMedia ? mediaPlayer : (
     <div class={isDataView ? `${fileStyles.previewContainer} ${fileStyles.previewWide}` : fileStyles.previewContainer}>
       <div class={fileStyles.previewHeader}>
@@ -55,6 +57,8 @@ export function filePage(
         <div class={fileStyles.previewActions}>
           <button class={`${layoutStyles.btn} ${fileStyles.previewBtn}`}
             data-action="source">Source</button>
+          {hasCodeView ? <button class={`${layoutStyles.btn} ${fileStyles.previewBtn}`}
+            data-action="code">Code</button> : null}
           <button class={`${layoutStyles.btn} ${fileStyles.previewBtn} ${fileStyles.previewBtnActive}`}
             data-action="rendered">Rendered</button>
         </div>
