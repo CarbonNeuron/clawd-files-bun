@@ -160,13 +160,15 @@ a:hover { text-decoration: underline; }
   border: 1px solid var(--border);
   border-radius: 8px;
   overflow: hidden;
-  text-decoration: none;
   color: var(--text);
   transition: border-color 0.15s;
 }
 .file-grid-item:hover {
   border-color: var(--accent);
+}
+.grid-preview-link {
   text-decoration: none;
+  color: inherit;
 }
 .grid-preview {
   aspect-ratio: 1;
@@ -198,11 +200,36 @@ a:hover { text-decoration: underline; }
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  color: var(--text);
+  text-decoration: none;
+  display: block;
+}
+.grid-name:hover { color: var(--accent); }
+.grid-meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 2px;
 }
 .grid-meta {
   font-size: 11px;
   color: var(--text-muted);
-  margin-top: 2px;
+}
+.grid-download {
+  font-size: 14px;
+  color: var(--text-muted);
+  text-decoration: none;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.15s;
+}
+.grid-download:hover {
+  color: var(--accent);
+  background: rgba(34, 211, 238, 0.1);
 }
 
 /* === Breadcrumbs === */

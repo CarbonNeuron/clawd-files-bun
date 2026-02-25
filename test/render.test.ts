@@ -38,8 +38,13 @@ test("getRenderer returns null for unknown type", () => {
   expect(getRenderer("file.xyz", "application/octet-stream")).toBeNull();
 });
 
-test("render returns no-preview for unknown type", async () => {
-  const result = await render(Buffer.from("data"), "file.bin", "application/octet-stream");
+test("render falls back to code view for unknown text-like files", async () => {
+  const result = await render(Buffer.from("some plain text"), "file.bin", "application/octet-stream");
+  expect(result).toContain("lumen-code");
+});
+
+test("render returns no-preview for binary files", async () => {
+  const result = await render(Buffer.from([0x00, 0x01, 0x02, 0xff]), "file.bin", "application/octet-stream");
   expect(result).toContain("No preview available");
 });
 

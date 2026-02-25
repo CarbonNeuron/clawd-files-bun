@@ -23,7 +23,7 @@ function listViewRows(bucketId: string, files: FileRow[]): string {
       <td class="file-name"><a href="/${bucketId}/${escapeHtml(f.path)}">${escapeHtml(f.path)}</a></td>
       <td class="file-meta">${formatBytes(f.size)}</td>
       <td class="file-meta">${formatRelativeDate(f.uploaded_at)}</td>
-      <td class="file-meta"><a href="/s/${escapeHtml(f.short_code)}" title="Short URL">s/${escapeHtml(f.short_code)}</a></td>
+      <td class="file-meta"><a href="/raw/${bucketId}/${escapeHtml(f.path)}" download class="btn" style="padding:2px 10px;font-size:11px;">Download</a></td>
     </tr>`).join("");
 }
 
@@ -40,13 +40,18 @@ function gridViewCards(bucketId: string, files: FileRow[]): string {
     const fallback = `<div class="grid-icon" ${isImage ? 'style="display:none"' : ""}>${icon}</div>`;
 
     return `
-    <a href="/${bucketId}/${escapeHtml(f.path)}" class="file-grid-item">
-      <div class="grid-preview">${preview}${fallback}</div>
+    <div class="file-grid-item">
+      <a href="/${bucketId}/${escapeHtml(f.path)}" class="grid-preview-link">
+        <div class="grid-preview">${preview}${fallback}</div>
+      </a>
       <div class="grid-info">
-        <div class="grid-name">${escapeHtml(f.path)}</div>
-        <div class="grid-meta">${formatBytes(f.size)}</div>
+        <a href="/${bucketId}/${escapeHtml(f.path)}" class="grid-name">${escapeHtml(f.path)}</a>
+        <div class="grid-meta-row">
+          <span class="grid-meta">${formatBytes(f.size)}</span>
+          <a href="${rawUrl}" download class="grid-download" title="Download">↓</a>
+        </div>
       </div>
-    </a>`;
+    </div>`;
   }).join("");
 }
 
@@ -93,7 +98,7 @@ export function bucketPage(bucket: BucketRow, files: FileRow[], readmeHtml?: str
             <th class="sortable" onclick="sortFiles('name')">Name <span id="sort-name"></span></th>
             <th class="sortable" onclick="sortFiles('size')">Size <span id="sort-size"></span></th>
             <th class="sortable" onclick="sortFiles('date')">Uploaded <span id="sort-date"></span></th>
-            <th>Short URL</th>
+            <th></th>
           </tr></thead>
           <tbody id="file-list">${listRows}</tbody>
         </table>
@@ -190,9 +195,9 @@ function filterFiles(q) {
     var name = row.cells[1].textContent.toLowerCase();
     row.style.display = name.includes(q) ? '' : 'none';
   });
-  document.querySelectorAll('#file-grid .file-grid-item').forEach(function(card) {
-    var name = card.querySelector('.grid-name').textContent.toLowerCase();
-    card.style.display = name.includes(q) ? '' : 'none';
+  document.querySelectorAll('#file-grid .file-grid-item').forEach(function(item) {
+    var name = item.querySelector('.grid-name').textContent.toLowerCase();
+    item.style.display = name.includes(q) ? '' : 'none';
   });
 }
 
