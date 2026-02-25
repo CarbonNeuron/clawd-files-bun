@@ -38,8 +38,8 @@ All write operations require a Bearer token in the Authorization header.
 
 ### Upload Links
 - POST /api/buckets/:id/upload-link — Generate pre-signed upload URL
-- POST /upload/:token — Upload via token (no auth needed)
-- GET /upload/:token — Drag-and-drop upload page
+- POST /api/upload/:token — Upload via token (no auth needed)
+- GET /api/upload/:token — Drag-and-drop upload page
 
 ### Short URLs
 - GET /s/:code — Redirect to raw file
@@ -235,7 +235,7 @@ expiresIn accepts: "1h", "24h", "7d", "30d", "never"
             responses: { "201": { description: "Upload URL and token" } },
           },
         },
-        "/upload/{token}": {
+        "/api/upload/{token}": {
           post: {
             tags: ["Upload Links"],
             summary: "Upload via token",
