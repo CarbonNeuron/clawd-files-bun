@@ -19,7 +19,7 @@ import { deleteBucketDir, writeFile, archiveVersion, hashFile } from "../storage
 import { generateBucketId, parseExpiresIn, wantsJson, generateShortCode, getMimeType } from "../utils";
 import { notifyBucketChange, notifyFileChange } from "../websocket";
 import { config } from "../config";
-import { mkdir, writeFile as writeFileNode, readFile as readFileNode, rm } from "node:fs/promises";
+import { mkdir, rm } from "node:fs/promises";
 import { join } from "node:path";
 
 // Store for tracking active chunked uploads
@@ -58,14 +58,21 @@ export function registerBucketRoutes() {
       return Response.json({ error: "Invalid chunk headers" }, { status: 400 });
     }
 
-    // Get chunk data
-    const chunkData = await req.arrayBuffer();
-    
     // Save chunk to temp directory
     const tempDir = getTempChunkDir(uploadId);
     await mkdir(tempDir, { recursive: true });
     const chunkPath = join(tempDir, `chunk_${chunkIndex}`);
-    await writeFileNode(chunkPath, Buffer.from(chunkData));
+    
+    // Write chunk - use arrayBuffer for better performance with large chunks
+    try {
+      const buffer = await req.arrayBuffer();
+      await Bun.write(chunkPath, buffer);
+    } catch (err) {
+      // Cleanup on error
+      await rm(tempDir, { recursive: true, force: true }).catch(() => {});
+      chunkedUploads.delete(uploadId);
+      throw err;
+    }
 
     // Track upload progress
     if (!chunkedUploads.has(uploadId)) {
@@ -81,18 +88,26 @@ export function registerBucketRoutes() {
 
     // Check if all chunks received
     if (upload.receivedChunks.size === totalChunks) {
-      // Reassemble chunks
-      const chunks: Buffer[] = [];
+      // Reassemble chunks - read all chunks into buffers first
+      const buffers: Uint8Array[] = [];
       for (let i = 0; i < totalChunks; i++) {
-        const chunkPath = join(tempDir, `chunk_${i}`);
-        const chunkBuffer = await readFileNode(chunkPath);
-        chunks.push(chunkBuffer);
+        const cp = join(tempDir, `chunk_${i}`);
+        const chunkFile = Bun.file(cp);
+        buffers.push(new Uint8Array(await chunkFile.arrayBuffer()));
       }
-      const completeFile = Buffer.concat(chunks);
-      const blob = new Blob([completeFile]);
+      
+      // Concatenate all buffers
+      const totalLength = buffers.reduce((sum, buf) => sum + buf.length, 0);
+      const combined = new Uint8Array(totalLength);
+      let offset = 0;
+      for (const buf of buffers) {
+        combined.set(buf, offset);
+        offset += buf.length;
+      }
+      const completeFile = new Blob([combined]);
 
       // Process as normal upload
-      const sha256 = await hashFile(blob);
+      const sha256 = await hashFile(completeFile);
       const mimeType = getMimeType(filename);
 
       // Check for existing file (version handling)
@@ -103,11 +118,11 @@ export function registerBucketRoutes() {
       }
 
       // Write to storage
-      await writeFile(params.id, filename, blob);
+      await writeFile(params.id, filename, completeFile);
 
       // Upsert in DB
       const shortCode = existing?.short_code ?? generateShortCode();
-      upsertFile(db, params.id, filename, blob.size, mimeType, shortCode, sha256);
+      upsertFile(db, params.id, filename, completeFile.size, mimeType, shortCode, sha256);
 
       const file = getFile(db, params.id, filename);
       
@@ -119,13 +134,13 @@ export function registerBucketRoutes() {
       updateBucketStats(db, params.id);
       notifyBucketChange(params.id);
       notifyFileChange(params.id, filename);
-      incrementDailyUploads(db, 1, blob.size);
+      incrementDailyUploads(db, 1, completeFile.size);
 
       return Response.json({
         complete: true,
         file: {
           path: filename,
-          size: blob.size,
+          size: completeFile.size,
           mimeType,
           version: file?.version ?? 1,
           url: `${config.baseUrl}/${params.id}/${filename}`,
