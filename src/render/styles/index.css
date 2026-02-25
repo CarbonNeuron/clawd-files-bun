@@ -176,7 +176,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 12px 0;
+  padding: 12px 16px;
 }
 
 .csv-filter {
@@ -361,8 +361,9 @@
   display: flex;
   gap: 8px;
   align-items: center;
-  padding: 12px 0;
+  padding: 12px 16px;
   color: #94a3b8;
+  font-size: 13px;
 }
 
 .lumen-table-viewer .pagination a {

@@ -126,11 +126,22 @@ a:hover { text-decoration: underline; }
 .file-table th.sortable { cursor: pointer; user-select: none; }
 .file-table th.sortable:hover { color: var(--accent); }
 
+/* === File Toolbar === */
+.file-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.file-toolbar .csv-filter {
+  flex: 1;
+  max-width: 320px;
+}
+
 /* === View Toggle === */
 .view-toggle {
   display: flex;
   gap: 4px;
-  margin-bottom: 12px;
 }
 .view-btn { gap: 4px; font-size: 12px; padding: 5px 12px; }
 .view-btn.active { color: var(--accent); border-color: var(--accent); }

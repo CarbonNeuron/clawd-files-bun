@@ -71,19 +71,18 @@ export function bucketPage(bucket: BucketRow, files: FileRow[], readmeHtml?: str
     const gridCards = gridViewCards(bucket.id, files);
 
     fileSection = `
-    <div class="view-toggle">
-      <button class="btn view-btn active" data-view="list" onclick="setView('list')">
-        <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M2 3h12v1.5H2V3zm0 4h12v1.5H2V7zm0 4h12v1.5H2V11z"/></svg>
-        List
-      </button>
-      <button class="btn view-btn" data-view="grid" onclick="setView('grid')">
-        <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M1 1h6v6H1V1zm8 0h6v6H9V1zM1 9h6v6H1V9zm8 0h6v6H9V9z"/></svg>
-        Grid
-      </button>
-    </div>
-
-    <div style="margin-bottom:12px;">
-      <input type="text" class="csv-filter" id="file-filter" placeholder="Filter files..." oninput="filterFiles(this.value)" style="width:100%;max-width:320px;">
+    <div class="file-toolbar">
+      <input type="text" class="csv-filter" id="file-filter" placeholder="Filter files..." oninput="filterFiles(this.value)">
+      <div class="view-toggle">
+        <button class="btn view-btn active" data-view="list" onclick="setView('list')">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M2 3h12v1.5H2V3zm0 4h12v1.5H2V7zm0 4h12v1.5H2V11z"/></svg>
+          List
+        </button>
+        <button class="btn view-btn" data-view="grid" onclick="setView('grid')">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M1 1h6v6H1V1zm8 0h6v6H9V1zM1 9h6v6H1V9zm8 0h6v6H9V9z"/></svg>
+          Grid
+        </button>
+      </div>
     </div>
 
     <div id="file-view-list" class="file-view">
@@ -112,11 +111,10 @@ export function bucketPage(bucket: BucketRow, files: FileRow[], readmeHtml?: str
     ? `<div class="copy-cmd"><code>curl -LJO ${escapeHtml(config.baseUrl)}/api/buckets/${bucket.id}/zip</code><button onclick="navigator.clipboard.writeText(this.previousElementSibling.textContent)">copy</button></div>`
     : "";
 
-  const actions = `
-    <div style="display:flex;gap:8px;margin:16px 0;">
-      ${files.length > 0 ? `<a href="/api/buckets/${bucket.id}/zip" class="btn btn-primary">Download ZIP</a>` : ""}
-      <a href="/api/buckets/${bucket.id}/summary" class="btn">Plain Text Summary</a>
-    </div>`;
+  const headerActions = `<div style="display:flex;gap:8px;">
+    ${files.length > 0 ? `<a href="/api/buckets/${bucket.id}/zip" class="btn btn-primary">Download ZIP</a>` : ""}
+    <a href="/api/buckets/${bucket.id}/summary" class="btn">Summary</a>
+  </div>`;
 
   const readme = readmeHtml ? `<div class="card" style="margin-top:24px;">${readmeHtml}</div>` : "";
 
@@ -222,10 +220,12 @@ function applyGridSort() {
       <div class="breadcrumbs">
         <a href="/">home</a><span class="sep">/</span><span>${name}</span>
       </div>
-      <h1 style="margin-bottom:8px;">${name}</h1>
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:8px;">
+        <h1>${name}</h1>
+        ${headerActions}
+      </div>
       ${desc}
       ${metadata}
-      ${actions}
       ${zipCmd}
       ${fileSection}
       ${readme}
