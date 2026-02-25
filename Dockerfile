@@ -23,6 +23,9 @@ COPY --from=build /app/node_modules/@img /app/node_modules/@img
 # Pre-built client JS bundles (compiled binary can't run Bun.build at runtime)
 COPY --from=build /app/src/generated /app/src/generated
 
+# Self-hosted font files
+COPY --from=build /app/src/fonts /app/src/fonts
+
 RUN mkdir -p /data
 
 ENV DATA_DIR=/data
