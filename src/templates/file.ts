@@ -16,7 +16,7 @@ export function filePage(
   const mime = file.mime_type;
 
   const isMedia = mime.startsWith("video/") || mime.startsWith("audio/");
-  const isDataView = mime === "text/csv" || mime === "application/json";
+  const isDataView = mime === "text/csv";
 
   let mediaPlayer = "";
   if (mime.startsWith("video/")) {
