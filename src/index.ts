@@ -57,7 +57,7 @@ async function main() {
 
   const server = Bun.serve({
     port: config.port,
-    maxRequestBodySize: 1024 * 1024 * 1024 * 10, // 10GB max — supports large multipart uploads
+    maxRequestBodySize: 1024 * 1024 * 1024 * 1000, // 1000GB max — supports large multipart uploads
     idleTimeout: 255, // High timeout for large file uploads
 
     routes: {
