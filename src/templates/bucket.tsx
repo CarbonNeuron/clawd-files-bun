@@ -60,7 +60,7 @@ function GridCard({ bucketId, f }: { bucketId: string; f: FileRow; children?: un
   );
 }
 
-export function bucketPage(bucket: BucketRow, files: FileRow[], readmeHtml?: string): string {
+export function bucketPage(bucket: BucketRow, files: FileRow[], readmeHtml?: string, snippets?: Map<string, string>): string {
   const name = escapeHtml(bucket.name);
   const purpose = bucket.purpose
     ? <p class={bucketStyles.purpose}>{escapeHtml(bucket.purpose)}</p>
@@ -87,7 +87,7 @@ export function bucketPage(bucket: BucketRow, files: FileRow[], readmeHtml?: str
   let fileSection: string;
   if (files.length > 0) {
     const listRows = files.map((f) => <FileRow bucketId={bucket.id} f={f} />).join("");
-    const gridCards = files.map((f) => <GridCard bucketId={bucket.id} f={f} />).join("");
+    const gridCards = files.map((f) => <GridCard bucketId={bucket.id} f={f} snippet={snippets?.get(f.path)} />).join("");
 
     fileSection = (
       <>

@@ -4,6 +4,7 @@ import { readFile } from "../storage";
 import { render } from "../render/index";
 import { config } from "../config";
 import { wantsJson, getMimeType, encodeFilePath } from "../utils";
+import { highlightCode, getLangForFile } from "../render/code";
 import { homePage } from "../templates/home";
 import { bucketPage } from "../templates/bucket";
 import { filePage } from "../templates/file";
@@ -41,7 +42,27 @@ export function registerPageRoutes() {
       }
     }
 
-    return new Response(bucketPage(bucket, files, readmeHtml), {
+    // Generate syntax-highlighted snippets for text/code files
+    const snippets = new Map<string, string>();
+    const SNIPPET_BYTES = 500;
+    await Promise.all(
+      files.map(async (f) => {
+        const lang = getLangForFile(f.path);
+        if (!lang) return;
+        try {
+          const bunFile = readFile(params.bucketId, f.path);
+          if (!(await bunFile.exists())) return;
+          const slice = bunFile.slice(0, SNIPPET_BYTES);
+          const text = await slice.text();
+          const html = await highlightCode(text, lang);
+          snippets.set(f.path, html);
+        } catch {
+          // Skip files that can't be read
+        }
+      })
+    );
+
+    return new Response(bucketPage(bucket, files, readmeHtml, snippets), {
       headers: { "Content-Type": "text/html; charset=utf-8" },
     });
   });
