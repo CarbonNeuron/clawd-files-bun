@@ -159,9 +159,13 @@ expiresIn accepts: "1h", "24h", "7d", "30d", "never"
       content: `<div id="scalar-docs"></div>`,
       head: `<style>.nav,.footer{display:none}.container{max-width:100%;padding:0}</style>`,
       scripts: `
-        <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference@latest/dist/browser/standalone.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
         <script>
-          Scalar.init({ target: '#scalar-docs', url: '/openapi.json', theme: 'dark' });
+          Scalar.createApiReference('#scalar-docs', {
+            url: '/openapi.json',
+            theme: 'alternate',
+            darkMode: true,
+          });
         </script>`,
     });
     return new Response(html, {
