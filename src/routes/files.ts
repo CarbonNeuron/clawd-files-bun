@@ -14,12 +14,11 @@ import {
   incrementDailyUploads,
 } from "../db";
 import {
-  writeFile as writeStorageFile,
+  streamWriteFile,
   readFile,
   deleteStoredFile,
   archiveVersion,
   readVersion,
-  hashFile,
   getFilePath,
 } from "../storage";
 import { generateShortCode, getMimeType, formatBytes } from "../utils";
@@ -58,7 +57,7 @@ export function registerFileRoutes() {
       if (!(value instanceof File)) continue;
       const fileName = value.name;
       const blob = value as Blob;
-      const sha256 = await hashFile(blob);
+      const { sha256, size } = await streamWriteFile(params.id, fileName, blob);
       const mimeType = getMimeType(fileName);
 
       // Check for existing file (version handling)
@@ -69,18 +68,15 @@ export function registerFileRoutes() {
         insertFileVersion(db, existing.id, existing.version, existing.size, existing.sha256);
       }
 
-      // Write to disk
-      await writeStorageFile(params.id, fileName, blob);
-
       // Upsert in DB
       const shortCode = existing?.short_code ?? generateShortCode();
-      upsertFile(db, params.id, fileName, blob.size, mimeType, shortCode, sha256);
+      upsertFile(db, params.id, fileName, size, mimeType, shortCode, sha256);
 
       const file = getFile(db, params.id, fileName);
       const sc = file?.short_code ?? shortCode;
       uploadedFiles.push({
         path: fileName,
-        size: blob.size,
+        size,
         mimeType,
         version: file?.version ?? 1,
         url: `${config.baseUrl}/${params.id}/${fileName}`,
