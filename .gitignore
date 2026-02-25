@@ -38,3 +38,8 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 
 # data directory
 data/
+
+# build artifacts
+clawd-files
+src/static/render.css
+src/static/site.css

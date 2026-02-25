@@ -10,7 +10,7 @@ import { registerShortRoutes } from "./routes/short";
 import { registerPageRoutes } from "./routes/pages";
 import { registerDocRoutes } from "./routes/docs";
 import { registerTableViewerRoutes } from "./routes/table-viewer";
-import { buildStyles } from "./render/styles";
+import { buildStyles, buildSiteStyles } from "./render/styles";
 import { preloadHighlighter } from "./render/code";
 import { startCleanupLoop, startStatsAggregation } from "./cleanup";
 import * as log from "./logger";
@@ -27,19 +27,15 @@ getDb();
 log.info("Database initialized");
 
 // Build CSS and preload Shiki in parallel
-const [styles] = await Promise.all([
+const [styles, siteStyles] = await Promise.all([
   buildStyles(),
+  buildSiteStyles(),
   preloadHighlighter(),
 ]);
 log.info("CSS built, Shiki loaded");
 
-// Build site CSS
-const siteCssResult = await Bun.build({
-  entrypoints: ["./src/render/styles/site.css"],
-  minify: true,
-});
-const siteCss = await siteCssResult.outputs[0].text();
-const siteCssEtag = Bun.hash(siteCss).toString(16);
+const siteCss = siteStyles.css;
+const siteCssEtag = siteStyles.etag;
 
 // Register all routes (order matters — API routes first, then catch-all page routes)
 registerKeyRoutes();

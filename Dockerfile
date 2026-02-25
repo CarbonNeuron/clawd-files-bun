@@ -1,17 +1,28 @@
-FROM oven/bun:latest AS base
+FROM oven/bun:latest AS build
 WORKDIR /app
 
-# Install dependencies
-FROM base AS install
 COPY package.json bun.lock ./
-RUN bun install --frozen-lockfile --production
+RUN bun install --frozen-lockfile
 
-# Build stage
-FROM base AS release
-COPY --from=install /app/node_modules node_modules
 COPY . .
 
-# Create data directory
+# Pre-bundle CSS
+RUN bun run scripts/build.ts
+
+# Runtime stage — just the binary + sharp native deps
+FROM oven/bun:latest AS release
+WORKDIR /app
+
+# Copy compiled binary
+COPY --from=build /app/clawd-files /app/clawd-files
+
+# Copy sharp native bindings (optional, for thumbnails)
+COPY --from=build /app/node_modules/sharp /app/node_modules/sharp
+COPY --from=build /app/node_modules/@img /app/node_modules/@img
+
+# Static assets needed at runtime
+COPY --from=build /app/src/static /app/src/static
+
 RUN mkdir -p /data
 
 ENV DATA_DIR=/data
@@ -20,4 +31,4 @@ EXPOSE 5109
 
 VOLUME ["/data"]
 
-CMD ["bun", "run", "src/index.ts"]
+CMD ["/app/clawd-files"]

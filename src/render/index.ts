@@ -8,6 +8,6 @@ import "./image";
 import "./pdf";
 
 export { render, getRenderer, registerRenderer } from "./registry";
-export { buildStyles, getCachedStyles } from "./styles";
+export { buildStyles, buildSiteStyles } from "./styles";
 export { preloadHighlighter } from "./code";
 export type { RenderContext } from "./registry";
