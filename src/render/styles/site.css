@@ -100,22 +100,29 @@ a:hover { text-decoration: underline; }
 .file-table { width: 100%; border-collapse: collapse; }
 .file-table th {
   text-align: left;
-  padding: 10px 12px;
-  font-size: 12px;
+  padding: 10px 16px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   color: var(--text-muted);
-  font-weight: 500;
+  font-weight: 600;
+  background: rgba(0, 0, 0, 0.15);
   border-bottom: 1px solid var(--border);
 }
 .file-table td {
-  padding: 10px 12px;
+  padding: 10px 16px;
   font-size: 13px;
   border-bottom: 1px solid var(--border);
 }
+.file-table tbody tr:last-child td { border-bottom: none; }
 .file-table tr:hover { background: rgba(255,255,255,0.02); }
-.file-table .file-icon { width: 20px; color: var(--text-muted); }
-.file-table .file-name a { color: var(--text); }
+.file-table .file-icon { width: 32px; text-align: center; font-size: 15px; white-space: nowrap; }
+.file-table .file-name { font-weight: 500; }
+.file-table .file-name a { color: var(--text); text-decoration: none; }
 .file-table .file-name a:hover { color: var(--accent); }
-.file-table .file-meta { color: var(--text-muted); font-size: 12px; }
+.file-table .file-meta { color: var(--text-muted); font-size: 12px; white-space: nowrap; }
+.file-table .file-meta a { color: var(--text-muted); }
+.file-table .file-meta a:hover { color: var(--accent); }
 
 /* === Breadcrumbs === */
 .breadcrumbs {

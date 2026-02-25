@@ -8,7 +8,7 @@ function fileIcon(mime: string): string {
   if (mime.startsWith("video/")) return "🎬";
   if (mime.startsWith("audio/")) return "🎵";
   if (mime === "application/pdf") return "📄";
-  if (mime === "application/json") return "{ }";
+  if (mime === "application/json") return "📋";
   if (mime === "text/markdown") return "📝";
   if (mime === "text/csv") return "📊";
   if (mime.startsWith("text/")) return "📃";
@@ -42,12 +42,14 @@ export function bucketPage(bucket: BucketRow, files: FileRow[], readmeHtml?: str
       </tr>`).join("");
 
     fileTable = `
-    <table class="file-table">
-      <thead><tr>
-        <th></th><th>Name</th><th>Size</th><th>Uploaded</th><th>Short URL</th>
-      </tr></thead>
-      <tbody id="file-list">${rows}</tbody>
-    </table>`;
+    <div class="card" style="padding:0;overflow:hidden;">
+      <table class="file-table">
+        <thead><tr>
+          <th style="width:32px;"></th><th>Name</th><th>Size</th><th>Uploaded</th><th>Short URL</th>
+        </tr></thead>
+        <tbody id="file-list">${rows}</tbody>
+      </table>
+    </div>`;
   } else {
     fileTable = `<div class="card" style="text-align:center;color:var(--text-muted);">No files in this bucket yet.</div>`;
   }

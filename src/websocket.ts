@@ -28,7 +28,7 @@ function getFileIcon(mime: string): string {
   if (mime.startsWith("video/")) return "🎬";
   if (mime.startsWith("audio/")) return "🎵";
   if (mime === "application/pdf") return "📄";
-  if (mime === "application/json") return "{ }";
+  if (mime === "application/json") return "📋";
   if (mime === "text/markdown") return "📝";
   if (mime === "text/csv") return "📊";
   if (mime.startsWith("text/")) return "📃";
