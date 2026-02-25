@@ -17,4 +17,4 @@ jobs:
       - run: bun install
       - run: bun test test/
         env:
-          ADMIN_KEY: test-admin-key-for-ci
+          ADMIN_KEY: dev-admin-key-change-in-production
