@@ -12,7 +12,7 @@ import { registerDocRoutes } from "./routes/docs";
 import { registerTableViewerRoutes } from "./routes/table-viewer";
 import { registerAdminRoutes } from "./routes/admin";
 import { buildClientJs } from "./client-bundle";
-import { loadPrebuiltCss } from "./css-text";
+import { loadPrebuiltCss, hasPrebuiltStylesheet, getStylesheetResponse } from "./css-text";
 import { preloadHighlighter } from "./render/code";
 import { startCleanupLoop, startStatsAggregation } from "./cleanup";
 import { setServer } from "./websocket";
@@ -61,6 +61,9 @@ const server = Bun.serve({
 
   routes: {
     "/health": new Response("ok"),
+    ...(hasPrebuiltStylesheet() ? {
+      "/styles.css": (req: Request) => getStylesheetResponse(req),
+    } : {}),
   },
 
   async fetch(req, server) {
