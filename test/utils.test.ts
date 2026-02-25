@@ -126,3 +126,25 @@ test("encodeFilePath encodes special characters", () => {
   expect(encoded).toContain("%20"); // spaces are encoded
   expect(encoded).not.toContain("#"); // no raw # characters
 });
+
+test("getMimeType handles extensionless files by filename", () => {
+  expect(getMimeType("Dockerfile")).toBe("text/x-dockerfile");
+  expect(getMimeType("Makefile")).toBe("text/x-makefile");
+  expect(getMimeType("Rakefile")).toBe("text/x-ruby");
+  expect(getMimeType("Gemfile")).toBe("text/x-ruby");
+  expect(getMimeType("Justfile")).toBe("text/x-makefile");
+  expect(getMimeType("Vagrantfile")).toBe("text/x-ruby");
+  expect(getMimeType("Procfile")).toBe("text/x-sh");
+  expect(getMimeType("Jenkinsfile")).toBe("text/x-groovy");
+});
+
+test("getMimeType handles previously unmapped extensions", () => {
+  expect(getMimeType("BucketService.cs")).toBe("text/x-csharp");
+  expect(getMimeType("project.csproj")).toBe("text/xml");
+  expect(getMimeType("app.sln")).toBe("text/plain");
+  expect(getMimeType("schema.graphql")).toBe("text/x-graphql");
+  expect(getMimeType("App.vue")).toBe("text/x-vue");
+  expect(getMimeType("App.svelte")).toBe("text/x-svelte");
+  expect(getMimeType(".env")).toBe("text/x-sh");
+  expect(getMimeType(".dockerfile")).toBe("text/x-dockerfile");
+});

@@ -47,6 +47,20 @@ const MIME_MAP: Record<string, string> = {
   ".r": "text/x-r",
   ".lua": "text/x-lua",
   ".zig": "text/x-zig",
+  ".cs": "text/x-csharp",
+  ".csproj": "text/xml",
+  ".sln": "text/plain",
+  ".graphql": "text/x-graphql",
+  ".gql": "text/x-graphql",
+  ".vue": "text/x-vue",
+  ".svelte": "text/x-svelte",
+  ".dockerfile": "text/x-dockerfile",
+  ".env": "text/x-sh",
+  ".ini": "text/plain",
+  ".cfg": "text/plain",
+  ".groovy": "text/x-groovy",
+  ".gradle": "text/x-groovy",
+  ".lock": "text/plain",
   // Images
   ".png": "image/png",
   ".jpg": "image/jpeg",
@@ -77,7 +91,29 @@ const MIME_MAP: Record<string, string> = {
   ".wasm": "application/wasm",
 };
 
+const FILENAME_MIME: Record<string, string> = {
+  "Dockerfile": "text/x-dockerfile",
+  "Makefile": "text/x-makefile",
+  "Rakefile": "text/x-ruby",
+  "Gemfile": "text/x-ruby",
+  "Justfile": "text/x-makefile",
+  "Vagrantfile": "text/x-ruby",
+  "Procfile": "text/x-sh",
+  "Jenkinsfile": "text/x-groovy",
+  ".bashrc": "text/x-sh",
+  ".zshrc": "text/x-sh",
+  ".profile": "text/x-sh",
+  ".gitignore": "text/plain",
+  ".gitattributes": "text/plain",
+  ".editorconfig": "text/plain",
+  ".env": "text/x-sh",
+  ".env.example": "text/x-sh",
+};
+
 export function getMimeType(filename: string): string {
+  const basename = filename.split("/").pop() ?? filename;
+  // Check exact filename match first (for Dockerfile, Makefile, etc.)
+  if (FILENAME_MIME[basename]) return FILENAME_MIME[basename];
   const ext = filename.substring(filename.lastIndexOf(".")).toLowerCase();
   return MIME_MAP[ext] ?? "application/octet-stream";
 }
