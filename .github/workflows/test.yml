@@ -16,3 +16,5 @@ jobs:
           bun-version: latest
       - run: bun install
       - run: bun test test/
+        env:
+          ADMIN_KEY: test-admin-key-for-ci

@@ -13,21 +13,25 @@ import { registerTableViewerRoutes } from "./routes/table-viewer";
 import { buildStyles } from "./render/styles";
 import { preloadHighlighter } from "./render/code";
 import { startCleanupLoop, startStatsAggregation } from "./cleanup";
+import * as log from "./logger";
 
 // Import all renderers to register them
 import "./render/index";
 
 // Ensure data directories exist
 await ensureDataDirs();
+log.info("Data directories ready");
 
 // Initialize database
 getDb();
+log.info("Database initialized");
 
 // Build CSS and preload Shiki in parallel
 const [styles] = await Promise.all([
   buildStyles(),
   preloadHighlighter(),
 ]);
+log.info("CSS built, Shiki loaded");
 
 // Build site CSS
 const siteCssResult = await Bun.build({
@@ -46,10 +50,12 @@ registerShortRoutes();
 registerDocRoutes();
 registerTableViewerRoutes();
 registerPageRoutes(); // Must be last — catch-all patterns
+log.info("Routes registered");
 
 // Start background tasks
 startCleanupLoop();
 startStatsAggregation();
+log.info("Background tasks started");
 
 const server = Bun.serve({
   port: config.port,
@@ -80,6 +86,7 @@ const server = Bun.serve({
   },
 
   async fetch(req, server) {
+    const start = performance.now();
     const url = new URL(req.url);
 
     // WebSocket upgrade
@@ -87,7 +94,10 @@ const server = Bun.serve({
       const wsMatch = url.pathname.match(/^\/ws\/bucket\/(.+)$/);
       if (wsMatch) {
         const upgraded = server.upgrade(req, { data: { bucketId: wsMatch[1] } });
-        if (upgraded) return undefined;
+        if (upgraded) {
+          log.debug(`WS upgrade ${url.pathname}`);
+          return undefined;
+        }
         return new Response("WebSocket upgrade failed", { status: 500 });
       }
       return new Response("Bad WebSocket path", { status: 400 });
@@ -97,13 +107,17 @@ const server = Bun.serve({
     const route = matchRoute(req.method, url.pathname);
     if (route) {
       try {
-        return await route.handler(req, route.params);
+        const res = await route.handler(req, route.params);
+        log.request(req.method, url.pathname, res.status, performance.now() - start);
+        return res;
       } catch (err) {
-        console.error(`Error handling ${req.method} ${url.pathname}:`, err);
+        log.error(`${req.method} ${url.pathname}`, err);
+        log.request(req.method, url.pathname, 500, performance.now() - start);
         return Response.json({ error: "Internal server error" }, { status: 500 });
       }
     }
 
+    log.request(req.method, url.pathname, 404, performance.now() - start);
     return new Response("Not Found", { status: 404 });
   },
 
@@ -112,6 +126,7 @@ const server = Bun.serve({
       const { bucketId } = ws.data as { bucketId: string };
       if (bucketId) {
         ws.subscribe(`bucket:${bucketId}`);
+        log.debug(`WS open bucket:${bucketId}`);
       }
     },
     message(ws, message) {
@@ -119,6 +134,7 @@ const server = Bun.serve({
         const msg = JSON.parse(String(message));
         if (msg.type === "subscribe" && msg.bucketId) {
           ws.subscribe(`bucket:${msg.bucketId}`);
+          log.debug(`WS subscribe bucket:${msg.bucketId}`);
         }
       } catch {
         // Ignore invalid messages
@@ -130,6 +146,6 @@ const server = Bun.serve({
   },
 });
 
-console.log(`ClawdFiles v4 running at http://localhost:${server.port}`);
+log.info(`ClawdFiles v4 running at http://localhost:${server.port}`);
 
 export { server };
