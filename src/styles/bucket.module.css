@@ -1,7 +1,7 @@
 /* File table */
 .fileTable { width: 100%; border-collapse: collapse; }
-.fileTableHead { text-align: left; padding: 10px 16px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); font-weight: 600; background: rgba(0,0,0,0.15); border-bottom: 1px solid var(--border); }
-.fileTableCell { padding: 10px 16px; font-size: 13px; border-bottom: 1px solid var(--border); }
+.fileTableHead { text-align: left; padding: 10px 16px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); font-weight: 600; background: rgba(0,0,0,0.15); border-bottom: 1px solid var(--cf-border); }
+.fileTableCell { padding: 10px 16px; font-size: 13px; border-bottom: 1px solid var(--cf-border); }
 .fileTableRow:last-child .fileTableCell { border-bottom: none; }
 .fileTableRow:hover { background: rgba(255,255,255,0.02); }
 .fileIcon { width: 32px; text-align: center; font-size: 15px; white-space: nowrap; }
@@ -16,7 +16,7 @@
 
 /* File toolbar */
 .toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
-.filterInput { flex: 1; max-width: 320px; padding: 6px 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); font-family: inherit; font-size: 13px; outline: none; }
+.filterInput { flex: 1; max-width: 320px; padding: 6px 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--cf-border); border-radius: var(--radius-sm); color: var(--text); font-family: inherit; font-size: 13px; outline: none; }
 .filterInput:focus { border-color: var(--accent); }
 .filterInput::placeholder { color: var(--text-dim); }
 
@@ -27,14 +27,14 @@
 
 /* File grid */
 .fileGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
-.gridItem { display: flex; flex-direction: column; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; transition: border-color 0.15s; }
+.gridItem { display: flex; flex-direction: column; background: var(--bg-card); border: 1px solid var(--cf-border); border-radius: var(--radius); overflow: hidden; transition: border-color 0.15s; }
 .gridItem:hover { border-color: var(--accent); }
 .gridPreviewLink { text-decoration: none; color: inherit; }
 .gridPreviewLink:hover { text-decoration: none; color: inherit; }
 .gridPreview { aspect-ratio: 1; overflow: hidden; background: rgba(0,0,0,0.2); display: flex; align-items: center; justify-content: center; }
 .gridPreviewImg { width: 100%; height: 100%; object-fit: cover; }
 .gridIcon { font-size: 36px; display: flex; align-items: center; justify-content: center; color: var(--text-muted); }
-.gridInfo { padding: 10px 12px; border-top: 1px solid var(--border); }
+.gridInfo { padding: 10px 12px; border-top: 1px solid var(--cf-border); }
 .gridName { font-size: 12px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text); text-decoration: none; display: block; }
 .gridName:hover { color: var(--accent); }
 .gridMetaRow { display: flex; align-items: center; justify-content: space-between; margin-top: 2px; }

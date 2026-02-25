@@ -16,7 +16,7 @@
   color: var(--text-muted);
   background: var(--bg-card);
   border-radius: 8px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--cf-border);
 }
 
 /* === Code renderer (standalone, inside .preview-container) === */
@@ -57,7 +57,7 @@
   color: var(--text);
   margin-top: 1.5em;
   margin-bottom: 0.5em;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--cf-border);
   padding-bottom: 0.3em;
   line-height: 1.3;
 }
@@ -92,7 +92,7 @@
 }
 
 :global(.lumen-markdown code) {
-  background: var(--border);
+  background: var(--cf-border);
   padding: 2px 6px;
   border-radius: 4px;
   font-size: 13px;
@@ -144,7 +144,7 @@
 
 :global(.lumen-markdown hr) {
   border: none;
-  border-top: 1px solid var(--border-hover);
+  border-top: 1px solid var(--cf-border-hover);
   margin: 1.5em 0;
 }
 
@@ -157,7 +157,7 @@
 
 :global(.lumen-markdown th),
 :global(.lumen-markdown td) {
-  border: 1px solid var(--border-hover);
+  border: 1px solid var(--cf-border-hover);
   padding: 6px 12px;
   text-align: left;
 }
@@ -189,7 +189,7 @@
   max-width: 320px;
   padding: 6px 12px;
   background: rgba(0, 0, 0, 0.2);
-  border: 1px solid var(--border-hover);
+  border: 1px solid var(--cf-border-hover);
   border-radius: 6px;
   color: var(--text);
   font-family: 'JetBrains Mono', monospace;
@@ -222,7 +222,7 @@
   top: 0;
   font-weight: 600;
   color: var(--text-muted);
-  border-bottom: 2px solid var(--border);
+  border-bottom: 2px solid var(--cf-border);
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -338,7 +338,7 @@
   width: 100%;
   height: 80vh;
   border-radius: 8px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--cf-border);
 }
 
 :global(.lumen-pdf .pdf-fallback) {
@@ -389,7 +389,7 @@
   gap: 8px;
   padding: 8px 16px;
   background: var(--bg-card);
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--cf-border);
   border-radius: 8px 8px 0 0;
 }
 

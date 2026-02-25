@@ -1,6 +1,6 @@
-.previewContainer { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.previewContainer { background: var(--bg-card); border: 1px solid var(--cf-border); border-radius: var(--radius); overflow: hidden; }
 .previewWide { width: calc(100vw - 48px); max-width: none; margin-left: calc(-1 * (100vw - 48px - 100%) / 2); }
-.previewHeader { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; border-bottom: 1px solid var(--border); font-size: 13px; }
+.previewHeader { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; border-bottom: 1px solid var(--cf-border); font-size: 13px; }
 .previewBody { padding: 0; overflow-x: auto; }
 .previewActions { display: flex; gap: 4px; }
 .previewBtn { padding: 2px 8px; font-size: 11px; }
@@ -10,4 +10,4 @@
 .versionDetails { margin-top: 16px; }
 .versionSummary { cursor: pointer; color: var(--text-muted); font-size: 13px; }
 .versionCurrent { padding: 6px 0; font-size: 13px; color: var(--accent); }
-.versionItem { padding: 6px 0; font-size: 13px; border-top: 1px solid var(--border); }
+.versionItem { padding: 6px 0; font-size: 13px; border-top: 1px solid var(--cf-border); }

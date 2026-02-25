@@ -13,8 +13,8 @@
   --accent: #22d3ee;
   --accent-hover: #06b6d4;
   --accent-glow: rgba(34, 211, 238, 0.08);
-  --border: rgba(148, 163, 184, 0.08);
-  --border-hover: rgba(148, 163, 184, 0.16);
+  --cf-border: rgba(148, 163, 184, 0.08);
+  --cf-border-hover: rgba(148, 163, 184, 0.16);
   --success: #34d399;
   --error: #f87171;
   --warning: #fbbf24;
