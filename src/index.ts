@@ -54,6 +54,7 @@ log.info("Background tasks started");
 
 const server = Bun.serve({
   port: config.port,
+  maxRequestBodySize: 1024 * 1024 * 1024 * 10, // 10GB max request body (individual chunks are small but we don't want to block large uploads)
 
   routes: {
     "/health": new Response("ok"),
