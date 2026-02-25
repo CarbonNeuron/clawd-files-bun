@@ -84,7 +84,10 @@ export function getMimeType(filename: string): string {
 
 export function wantsJson(req: Request): boolean {
   const accept = req.headers.get("accept") ?? "";
+  // Explicit Accept header takes priority
+  if (accept.includes("text/html")) return false;
   if (accept.includes("application/json")) return true;
+  // CLI tools default to JSON when no explicit Accept
   const ua = req.headers.get("user-agent") ?? "";
   if (ua.startsWith("curl/") || ua.startsWith("httpie/")) return true;
   return false;
