@@ -1,6 +1,7 @@
 import MarkdownIt from "markdown-it";
 import { registerRenderer } from "./registry";
 import { highlightCode } from "./code";
+import { encodeFilePath } from "../utils";
 import type { RenderContext } from "./registry";
 
 // Two-pass rendering: collect code blocks, batch highlight, substitute
@@ -35,9 +36,9 @@ async function markdownRenderer(
       if (href.startsWith("./") || (!href.startsWith("../") && !href.startsWith("http") && !href.startsWith("#") && !href.startsWith("/"))) {
         const cleanPath = href.startsWith("./") ? href.slice(2) : href;
         if (/\.(png|jpg|jpeg|gif|webp|svg|mp4|webm|mp3|wav|pdf)$/i.test(cleanPath)) {
-          return `/raw/${bucketId}/${cleanPath}`;
+          return `/raw/${bucketId}/${encodeFilePath(cleanPath)}`;
         }
-        return `/${bucketId}/${cleanPath}`;
+        return `/${bucketId}/${encodeFilePath(cleanPath)}`;
       }
       return href;
     }

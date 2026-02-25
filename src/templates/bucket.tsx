@@ -1,6 +1,6 @@
 import { Raw } from "../jsx/jsx-runtime";
 import { layout } from "./layout.tsx";
-import { escapeHtml, formatBytes, formatRelativeDate } from "../utils";
+import { escapeHtml, encodeFilePath, formatBytes, formatRelativeDate } from "../utils";
 import { config } from "../config";
 import { isImageFile } from "../thumbnails";
 import type { BucketRow, FileRow } from "../db";
@@ -21,18 +21,18 @@ function FileRow({ bucketId, f }: { bucketId: string; f: FileRow; children?: unk
   return (
     <tr>
       <td class="file-icon">{fileIcon(f.mime_type)}</td>
-      <td class="file-name"><a href={`/${bucketId}/${f.path}`}>{escapeHtml(f.path)}</a></td>
+      <td class="file-name"><a href={`/${bucketId}/${encodeFilePath(f.path)}`}>{escapeHtml(f.path)}</a></td>
       <td class="file-meta">{formatBytes(f.size)}</td>
       <td class="file-meta">{formatRelativeDate(f.uploaded_at)}</td>
-      <td class="file-meta"><a href={`/raw/${bucketId}/${f.path}`} download class="btn" style="padding:2px 10px;font-size:11px;">Download</a></td>
+      <td class="file-meta"><a href={`/raw/${bucketId}/${encodeFilePath(f.path)}`} download class="btn" style="padding:2px 10px;font-size:11px;">Download</a></td>
     </tr>
   );
 }
 
 function GridCard({ bucketId, f }: { bucketId: string; f: FileRow; children?: unknown }) {
   const isImage = isImageFile(f.path);
-  const thumbUrl = `/api/buckets/${bucketId}/thumb/${f.path}`;
-  const rawUrl = `/raw/${bucketId}/${f.path}`;
+  const thumbUrl = `/api/buckets/${bucketId}/thumb/${encodeFilePath(f.path)}`;
+  const rawUrl = `/raw/${bucketId}/${encodeFilePath(f.path)}`;
   const icon = fileIcon(f.mime_type);
   const preview = isImage
     ? `<img src="${escapeHtml(thumbUrl)}" alt="${escapeHtml(f.path)}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
@@ -41,11 +41,11 @@ function GridCard({ bucketId, f }: { bucketId: string; f: FileRow; children?: un
 
   return (
     <div class="file-grid-item">
-      <a href={`/${bucketId}/${f.path}`} class="grid-preview-link">
+      <a href={`/${bucketId}/${encodeFilePath(f.path)}`} class="grid-preview-link">
         <div class="grid-preview" dangerouslySetInnerHTML={{ __html: preview + fallback }} />
       </a>
       <div class="grid-info">
-        <a href={`/${bucketId}/${f.path}`} class="grid-name">{escapeHtml(f.path)}</a>
+        <a href={`/${bucketId}/${encodeFilePath(f.path)}`} class="grid-name">{escapeHtml(f.path)}</a>
         <div class="grid-meta-row">
           <span class="grid-meta">{formatBytes(f.size)}</span>
           <a href={rawUrl} download class="grid-download" title="Download">↓</a>

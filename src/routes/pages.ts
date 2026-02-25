@@ -3,7 +3,7 @@ import { getDb, getBucket, getFile, listFiles, getFileVersions } from "../db";
 import { readFile } from "../storage";
 import { render } from "../render/index";
 import { config } from "../config";
-import { wantsJson, getMimeType } from "../utils";
+import { wantsJson, getMimeType, encodeFilePath } from "../utils";
 import { homePage } from "../templates/home";
 import { bucketPage } from "../templates/bucket";
 import { filePage } from "../templates/file";
@@ -78,7 +78,7 @@ export function registerPageRoutes() {
         const code = content.toString("utf-8");
         renderedContent = `<pre style="padding:16px;overflow-x:auto;font-size:13px;"><code>${Bun.escapeHTML(code)}</code></pre>`;
       } else if (content.length > config.maxRenderSize) {
-        renderedContent = `<div class="lumen-no-preview"><p>File too large to preview (${(content.length / 1024 / 1024).toFixed(1)} MB). <a href="/raw/${bucket.id}/${file.path}">Download raw file</a>.</p></div>`;
+        renderedContent = `<div class="lumen-no-preview"><p>File too large to preview (${(content.length / 1024 / 1024).toFixed(1)} MB). <a href="/raw/${bucket.id}/${encodeFilePath(file.path)}">Download raw file</a>.</p></div>`;
       } else {
         renderedContent = await render(content, file.path, file.mime_type, { bucketId: params.bucketId });
       }
