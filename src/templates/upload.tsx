@@ -42,7 +42,6 @@ export function uploadPage({ token, baseUrl }: UploadPageProps): string {
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>Upload Files — ClawdFiles</title>
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
         {hasPrebuiltStylesheet()
           ? <style><Raw html={getPrebuiltCss()} /></style>
           : <style><Raw html={cssText(baseStyles, "base") + cssText(uploadStyles, "upload")} /></style>}

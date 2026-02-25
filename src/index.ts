@@ -62,6 +62,8 @@ async function main() {
 
     routes: {
       "/health": new Response("ok"),
+      "/fonts/jetbrains-mono-latin.woff2": new Response(Bun.file("src/fonts/jetbrains-mono-latin.woff2"), { headers: { "Content-Type": "font/woff2", "Cache-Control": "public, max-age=31536000, immutable" } }),
+      "/fonts/jetbrains-mono-latin-ext.woff2": new Response(Bun.file("src/fonts/jetbrains-mono-latin-ext.woff2"), { headers: { "Content-Type": "font/woff2", "Cache-Control": "public, max-age=31536000, immutable" } }),
     },
 
     async fetch(req, server) {

@@ -19,7 +19,6 @@ export function layout({ title, content, scripts, head }: LayoutProps): string {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>{Bun.escapeHTML(title)} — ClawdFiles</title>
         <link rel="icon" href={`data:image/svg+xml,${encodeURIComponent("<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='80' font-size='80'>🦀</text></svg>")}`} />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
         {hasPrebuiltStylesheet()
           ? <style><Raw html={getPrebuiltCss()} /></style>
           : <style><Raw html={cssText(baseStyles, "base") + cssText(layoutStyles, "layout")} /></style>}
