@@ -170,7 +170,27 @@ export function renderTableFragment(
 ): string {
   const filterParam = currentFilter ? `&filter=${encodeURIComponent(currentFilter)}` : "";
 
-  let html = `<table><thead><tr>`;
+  const sortParam = currentSort ? `&sort=${encodeURIComponent(currentSort)}&dir=${currentDir ?? "asc"}` : "";
+
+  function paginationHtml(): string {
+    if (totalPages <= 1) {
+      return `<div class="pagination"><span>${total.toLocaleString()} rows</span></div>`;
+    }
+    let p = `<div class="pagination">`;
+    if (page > 1) {
+      p += `<a hx-get="${viewerUrl}?page=${page - 1}${sortParam}${filterParam}" hx-target="#csv-table-body" hx-swap="innerHTML">← Prev</a>`;
+    }
+    p += `<span>Page ${page} of ${totalPages} (${total.toLocaleString()} rows)</span>`;
+    if (page < totalPages) {
+      p += `<a hx-get="${viewerUrl}?page=${page + 1}${sortParam}${filterParam}" hx-target="#csv-table-body" hx-swap="innerHTML">Next →</a>`;
+    }
+    p += `</div>`;
+    return p;
+  }
+
+  let html = paginationHtml();
+
+  html += `<table><thead><tr>`;
   for (const h of header) {
     const isActive = currentSort === h;
     const nextDir = isActive && currentDir === "asc" ? "desc" : "asc";
@@ -191,22 +211,7 @@ export function renderTableFragment(
   }
 
   html += `</tbody></table>`;
-
-  // Pagination
-  if (totalPages > 1) {
-    const sortParam = currentSort ? `&sort=${encodeURIComponent(currentSort)}&dir=${currentDir ?? "asc"}` : "";
-    html += `<div class="pagination">`;
-    if (page > 1) {
-      html += `<a hx-get="${viewerUrl}?page=${page - 1}${sortParam}${filterParam}" hx-target="#csv-table-body" hx-swap="innerHTML">← Prev</a>`;
-    }
-    html += `<span>Page ${page} of ${totalPages} (${total.toLocaleString()} rows)</span>`;
-    if (page < totalPages) {
-      html += `<a hx-get="${viewerUrl}?page=${page + 1}${sortParam}${filterParam}" hx-target="#csv-table-body" hx-swap="innerHTML">Next →</a>`;
-    }
-    html += `</div>`;
-  } else {
-    html += `<div class="pagination"><span>${total.toLocaleString()} rows</span></div>`;
-  }
+  html += paginationHtml();
 
   return html;
 }

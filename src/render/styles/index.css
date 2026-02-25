@@ -236,6 +236,12 @@
   padding: 6px 12px;
   border-bottom: 1px solid rgba(148, 163, 184, 0.06);
   text-align: left;
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lumen-csv th {
   white-space: nowrap;
 }
 
