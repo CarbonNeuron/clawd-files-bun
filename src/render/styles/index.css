@@ -1,0 +1,308 @@
+/* === Base render styles === */
+.lumen-render {
+  font-family: 'JetBrains Mono', monospace;
+  line-height: 1.6;
+  color: #e2e8f0;
+}
+
+.lumen-no-preview {
+  padding: 40px;
+  text-align: center;
+  color: #94a3b8;
+  background: #0d1117;
+  border-radius: 8px;
+  border: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+/* === Code renderer === */
+.lumen-code pre {
+  margin: 0;
+  padding: 16px;
+  border-radius: 8px;
+  overflow-x: auto;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.lumen-code pre code {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.lumen-code .line-number {
+  display: inline-block;
+  width: 3em;
+  text-align: right;
+  padding-right: 1em;
+  color: #64748b;
+  user-select: none;
+}
+
+/* === Markdown renderer === */
+.lumen-markdown {
+  padding: 24px;
+  max-width: 900px;
+}
+
+.lumen-markdown h1,
+.lumen-markdown h2,
+.lumen-markdown h3,
+.lumen-markdown h4 {
+  color: #f1f5f9;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+  padding-bottom: 0.3em;
+}
+
+.lumen-markdown h1 { font-size: 1.8em; }
+.lumen-markdown h2 { font-size: 1.4em; }
+.lumen-markdown h3 { font-size: 1.2em; }
+
+.lumen-markdown a {
+  color: #22d3ee;
+  text-decoration: none;
+}
+
+.lumen-markdown a:hover {
+  text-decoration: underline;
+}
+
+.lumen-markdown code {
+  background: #161b22;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+
+.lumen-markdown pre {
+  background: #161b22;
+  border-radius: 8px;
+  overflow-x: auto;
+}
+
+.lumen-markdown pre code {
+  background: none;
+  padding: 0;
+}
+
+.lumen-markdown blockquote {
+  border-left: 3px solid #22d3ee;
+  margin-left: 0;
+  padding-left: 16px;
+  color: #94a3b8;
+}
+
+.lumen-markdown img {
+  max-width: 100%;
+  border-radius: 8px;
+}
+
+.lumen-markdown table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.lumen-markdown th,
+.lumen-markdown td {
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  padding: 8px 12px;
+  text-align: left;
+}
+
+.lumen-markdown th {
+  background: #161b22;
+  font-weight: 600;
+}
+
+/* === CSV renderer === */
+.lumen-csv {
+  overflow-x: auto;
+}
+
+.lumen-csv table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 13px;
+}
+
+.lumen-csv th {
+  background: #161b22;
+  position: sticky;
+  top: 0;
+  font-weight: 600;
+  color: #22d3ee;
+  border-bottom: 2px solid rgba(34, 211, 238, 0.3);
+}
+
+.lumen-csv th,
+.lumen-csv td {
+  padding: 6px 12px;
+  border: 1px solid rgba(148, 163, 184, 0.1);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.lumen-csv tr:nth-child(even) {
+  background: rgba(13, 17, 23, 0.5);
+}
+
+.lumen-csv tr:hover {
+  background: rgba(34, 211, 238, 0.05);
+}
+
+/* === JSON renderer === */
+.lumen-json {
+  font-size: 13px;
+  line-height: 1.5;
+  padding: 16px;
+}
+
+.lumen-json details {
+  margin-left: 16px;
+}
+
+.lumen-json summary {
+  cursor: pointer;
+  color: #94a3b8;
+}
+
+.lumen-json summary:hover {
+  color: #e2e8f0;
+}
+
+.lumen-json .json-key {
+  color: #7dd3fc;
+}
+
+.lumen-json .json-string {
+  color: #4ade80;
+}
+
+.lumen-json .json-number {
+  color: #22d3ee;
+}
+
+.lumen-json .json-boolean {
+  color: #fb923c;
+}
+
+.lumen-json .json-null {
+  color: #64748b;
+  font-style: italic;
+}
+
+/* === SVG renderer === */
+.lumen-svg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: #0d1117;
+  border-radius: 8px;
+}
+
+.lumen-svg svg {
+  max-width: 100%;
+  max-height: 80vh;
+}
+
+/* === Image renderer === */
+.lumen-image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.lumen-image img {
+  max-width: 100%;
+  max-height: 80vh;
+  border-radius: 8px;
+}
+
+/* === PDF renderer === */
+.lumen-pdf {
+  text-align: center;
+  padding: 40px;
+}
+
+.lumen-pdf object {
+  width: 100%;
+  height: 80vh;
+  border-radius: 8px;
+  border: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+.lumen-pdf .pdf-fallback {
+  margin-top: 16px;
+}
+
+.lumen-pdf .pdf-fallback a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: #22d3ee;
+  color: #06090f;
+  text-decoration: none;
+  border-radius: 6px;
+  font-weight: 600;
+}
+
+.lumen-pdf .pdf-fallback a:hover {
+  background: #06b6d4;
+}
+
+/* === Table viewer === */
+.lumen-table-viewer .pagination {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 12px 0;
+  color: #94a3b8;
+}
+
+.lumen-table-viewer .pagination a {
+  color: #22d3ee;
+  text-decoration: none;
+  padding: 4px 12px;
+  border: 1px solid rgba(34, 211, 238, 0.3);
+  border-radius: 4px;
+}
+
+.lumen-table-viewer .pagination a:hover {
+  background: rgba(34, 211, 238, 0.1);
+}
+
+/* === Toolbar === */
+.lumen-toolbar {
+  display: flex;
+  gap: 8px;
+  padding: 8px 16px;
+  background: #0d1117;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+  border-radius: 8px 8px 0 0;
+}
+
+.lumen-toolbar button,
+.lumen-toolbar a {
+  padding: 4px 12px;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 4px;
+  background: transparent;
+  color: #94a3b8;
+  cursor: pointer;
+  font-size: 12px;
+  text-decoration: none;
+}
+
+.lumen-toolbar button:hover,
+.lumen-toolbar a:hover {
+  color: #e2e8f0;
+  border-color: rgba(148, 163, 184, 0.4);
+}
+
+.lumen-toolbar .active {
+  color: #22d3ee;
+  border-color: #22d3ee;
+}
