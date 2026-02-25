@@ -33,7 +33,31 @@ await mkdir("./src/generated", { recursive: true });
 await Bun.write("./src/generated/client-bundles.json", JSON.stringify(bundles));
 log.info(`Client JS built: ${Object.keys(bundles).join(", ")}`);
 
-// 2. Compile binary
+// 2. Pre-build CSS module texts (compiled binary loses cssText from bun-css-modules)
+log.info("Extracting CSS module texts...");
+import baseStyles from "../src/styles/base.module.css";
+import layoutStyles from "../src/styles/layout.module.css";
+import homeStyles from "../src/styles/home.module.css";
+import bucketStyles from "../src/styles/bucket.module.css";
+import fileStyles from "../src/styles/file.module.css";
+import renderStyles from "../src/styles/render.module.css";
+import adminStyles from "../src/styles/admin.module.css";
+import uploadStyles from "../src/styles/upload.module.css";
+
+const cssTexts: Record<string, string> = {
+  base: baseStyles.cssText,
+  layout: layoutStyles.cssText,
+  home: homeStyles.cssText,
+  bucket: bucketStyles.cssText,
+  file: fileStyles.cssText,
+  render: renderStyles.cssText,
+  admin: adminStyles.cssText,
+  upload: uploadStyles.cssText,
+};
+await Bun.write("./src/generated/css-texts.json", JSON.stringify(cssTexts));
+log.info(`CSS texts extracted: ${Object.keys(cssTexts).join(", ")}`);
+
+// 3. Compile binary
 log.info("Compiling binary...");
 const proc = Bun.spawn(
   ["bun", "build", "--compile", "src/index.ts", "--outfile", "clawd-files"],

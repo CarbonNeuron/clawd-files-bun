@@ -4,6 +4,7 @@ import { escapeHtml, encodeFilePath, formatBytes, formatRelativeDate } from "../
 import { config } from "../config";
 import { isImageFile } from "../thumbnails";
 import { getClientJs } from "../client-bundle";
+import { cssText } from "../css-text";
 import bucketStyles from "../styles/bucket.module.css";
 import layoutStyles from "../styles/layout.module.css";
 import type { BucketRow, FileRow } from "../db";
@@ -133,7 +134,7 @@ export function bucketPage(bucket: BucketRow, files: FileRow[], readmeHtml?: str
     },
   });
 
-  const head = `<style>${bucketStyles.cssText}</style><script type="application/json" id="pageData">${pageData}</script>`;
+  const head = `<style>${cssText(bucketStyles, "bucket")}</style><script type="application/json" id="pageData">${pageData}</script>`;
   const scripts = `<script>${getClientJs("bucket")}</script>`;
 
   const content = (

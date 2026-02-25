@@ -1,4 +1,5 @@
 import { layout } from "./layout.tsx";
+import { cssText } from "../css-text";
 import layoutStyles from "../styles/layout.module.css";
 import homeStyles from "../styles/home.module.css";
 
@@ -29,5 +30,5 @@ export function homePage(): string {
     </>
   );
 
-  return layout({ title: "Home", content, head: `<style>${homeStyles.cssText}</style>` });
+  return layout({ title: "Home", content, head: `<style>${cssText(homeStyles, "home")}</style>` });
 }

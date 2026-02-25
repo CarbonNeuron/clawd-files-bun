@@ -3,6 +3,7 @@ import { layout } from "./layout.tsx";
 import { escapeHtml, encodeFilePath, formatBytes, formatRelativeDate } from "../utils";
 import { config } from "../config";
 import { getClientJs } from "../client-bundle";
+import { cssText } from "../css-text";
 import fileStyles from "../styles/file.module.css";
 import layoutStyles from "../styles/layout.module.css";
 import renderStyles from "../styles/render.module.css";
@@ -72,7 +73,7 @@ export function filePage(
     },
   });
 
-  const head = `<style>${fileStyles.cssText}${renderStyles.cssText}</style><script type="application/json" id="pageData">${pageData}</script>`;
+  const head = `<style>${cssText(fileStyles, "file")}${cssText(renderStyles, "render")}</style><script type="application/json" id="pageData">${pageData}</script>`;
   const scripts = `<script>${getClientJs("file")}</script>`;
 
   const content = (

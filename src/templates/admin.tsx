@@ -2,6 +2,7 @@ import { Raw } from "../jsx/jsx-runtime";
 import { layout } from "./layout.tsx";
 import { escapeHtml, formatBytes, formatRelativeDate } from "../utils";
 import { getClientJs } from "../client-bundle";
+import { cssText } from "../css-text";
 import adminStyles from "../styles/admin.module.css";
 import bucketStyles from "../styles/bucket.module.css";
 import layoutStyles from "../styles/layout.module.css";
@@ -78,7 +79,7 @@ export function adminPage(stats: AdminStats, keys: KeyInfo[], buckets: BucketRow
     </>
   );
 
-  const head = `<style>${adminStyles.cssText}${bucketStyles.cssText}</style>`;
+  const head = `<style>${cssText(adminStyles, "admin")}${cssText(bucketStyles, "bucket")}</style>`;
   const scripts = `<script>${getClientJs("admin")}</script>`;
 
   return layout({ title: "Admin Dashboard", content, head, scripts });
