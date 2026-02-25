@@ -12,6 +12,7 @@ import { registerDocRoutes } from "./routes/docs";
 import { registerTableViewerRoutes } from "./routes/table-viewer";
 import { registerAdminRoutes } from "./routes/admin";
 import { buildStyles } from "./render/styles";
+import { buildClientJs } from "./client-bundle";
 import { preloadHighlighter } from "./render/code";
 import { startCleanupLoop, startStatsAggregation } from "./cleanup";
 import { setServer } from "./websocket";
@@ -31,6 +32,7 @@ log.info("Database initialized");
 // Build CSS and preload Shiki in parallel
 const [styles] = await Promise.all([
   buildStyles(),
+  buildClientJs(),
   preloadHighlighter(),
 ]);
 log.info("CSS built, Shiki loaded");
@@ -54,8 +56,8 @@ log.info("Background tasks started");
 
 const server = Bun.serve({
   port: config.port,
-  maxRequestBodySize: 1024 * 1024 * 1024 * 10, // 10GB max request body (individual chunks are small but we don't want to block large uploads)
-  idleTimeout: 255, // Increase timeout for large chunk processing
+  maxRequestBodySize: 1024 * 1024 * 1024 * 10, // 10GB max — supports large multipart uploads
+  idleTimeout: 255, // High timeout for large file uploads
 
   routes: {
     "/health": new Response("ok"),
