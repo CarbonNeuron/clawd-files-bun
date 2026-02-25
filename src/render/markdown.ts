@@ -79,22 +79,16 @@ async function markdownRenderer(
     })
   );
 
-  // Substitute placeholders
+  // Substitute placeholders — markdown-it wraps in <pre><code class="language-X">
   for (const { id, html: blockHtml } of highlighted) {
-    html = html.replace(
-      `<pre><code>${PLACEHOLDER_PREFIX}${id}${PLACEHOLDER_SUFFIX}\n</code></pre>`,
-      blockHtml
+    const placeholder = `${PLACEHOLDER_PREFIX}${id}${PLACEHOLDER_SUFFIX}`;
+    // Match the full <pre><code ...>PLACEHOLDER\n</code></pre> wrapper with any attributes
+    const wrapperRe = new RegExp(
+      `<pre><code[^>]*>${placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\n?</code></pre>`,
     );
-    // Also handle case without newline
-    html = html.replace(
-      `<pre><code>${PLACEHOLDER_PREFIX}${id}${PLACEHOLDER_SUFFIX}</code></pre>`,
-      blockHtml
-    );
-    // Handle case where highlight returns inside <p> or directly
-    html = html.replace(
-      `${PLACEHOLDER_PREFIX}${id}${PLACEHOLDER_SUFFIX}`,
-      blockHtml
-    );
+    html = html.replace(wrapperRe, blockHtml);
+    // Fallback: bare placeholder (shouldn't happen, but safe)
+    html = html.replace(placeholder, blockHtml);
   }
 
   return `<div class="lumen-markdown">${html}</div>`;
