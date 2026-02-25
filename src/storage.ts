@@ -83,8 +83,9 @@ export async function hashFile(data: Blob): Promise<string> {
 }
 
 /**
- * Stream a blob to disk while computing SHA-256 incrementally.
- * Avoids loading the entire blob into memory at once.
+ * Stream a File/Blob to disk while computing SHA-256 incrementally.
+ * Uses Bun.file().writer() for streaming writes — each chunk is
+ * hashed and written without buffering the entire file in memory.
  */
 export async function streamWriteFile(
   bucketId: string,

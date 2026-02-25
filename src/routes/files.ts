@@ -56,19 +56,16 @@ export function registerFileRoutes() {
     for (const [_key, value] of formData.entries()) {
       if (!(value instanceof File)) continue;
       const fileName = value.name;
-      const blob = value as Blob;
-      const { sha256, size } = await streamWriteFile(params.id, fileName, blob);
+      const { sha256, size } = await streamWriteFile(params.id, fileName, value);
       const mimeType = getMimeType(fileName);
 
       // Check for existing file (version handling)
       const existing = getFile(db, params.id, fileName);
       if (existing) {
-        // Archive old version
         await archiveVersion(params.id, fileName, existing.version);
         insertFileVersion(db, existing.id, existing.version, existing.size, existing.sha256);
       }
 
-      // Upsert in DB
       const shortCode = existing?.short_code ?? generateShortCode();
       upsertFile(db, params.id, fileName, size, mimeType, shortCode, sha256);
 

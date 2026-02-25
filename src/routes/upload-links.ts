@@ -71,8 +71,7 @@ export function registerUploadLinkRoutes() {
     for (const [_key, value] of formData.entries()) {
       if (!(value instanceof File)) continue;
       const fileName = value.name;
-      const blob = value as Blob;
-      const { sha256, size } = await streamWriteFile(result.bucketId, fileName, blob);
+      const { sha256, size } = await streamWriteFile(result.bucketId, fileName, value);
       const mimeType = getMimeType(fileName);
 
       const existing = getFile(db, result.bucketId, fileName);
