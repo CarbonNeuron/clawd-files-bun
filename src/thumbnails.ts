@@ -3,27 +3,12 @@ import { existsSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { filesDir } from "./config";
 import * as log from "./logger";
+import sharp from "sharp";
 
 const THUMB_SIZE = 200;
 const THUMB_QUALITY = 70;
 
 const IMAGE_EXTENSIONS = new Set([".png", ".jpg", ".jpeg", ".gif", ".webp", ".avif", ".bmp"]);
-
-let _sharp: typeof import("sharp").default | null | false = null;
-
-async function getSharp() {
-  if (_sharp === false) return null; // Already tried and failed
-  if (_sharp) return _sharp;
-  try {
-    _sharp = (await import("sharp")).default;
-    log.info("sharp loaded successfully");
-    return _sharp;
-  } catch (err) {
-    log.warn("sharp not available — thumbnails disabled:", (err as Error).message);
-    _sharp = false;
-    return null;
-  }
-}
 
 export function isImageFile(filename: string): boolean {
   const ext = filename.substring(filename.lastIndexOf(".")).toLowerCase();
@@ -46,9 +31,6 @@ export async function getThumbnail(bucketId: string, filePath: string): Promise<
     const file = Bun.file(tp);
     return Buffer.from(await file.arrayBuffer());
   }
-
-  const sharp = await getSharp();
-  if (!sharp) return null;
 
   // Generate from source
   const sp = sourcePath(bucketId, filePath);
