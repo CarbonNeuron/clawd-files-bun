@@ -18,9 +18,11 @@ WORKDIR /app
 # Copy compiled binary
 COPY --from=build /app/clawd-files /app/clawd-files
 
-# Copy sharp native bindings (optional, for thumbnails)
+# Copy sharp and its runtime dependencies (optional, for thumbnails)
 COPY --from=build /app/node_modules/sharp /app/node_modules/sharp
 COPY --from=build /app/node_modules/@img /app/node_modules/@img
+COPY --from=build /app/node_modules/detect-libc /app/node_modules/detect-libc
+COPY --from=build /app/node_modules/semver /app/node_modules/semver
 
 # Pre-built client JS bundles (compiled binary can't run Bun.build at runtime)
 COPY --from=build /app/src/generated /app/src/generated
