@@ -16,9 +16,10 @@ async function getSharp() {
   if (_sharp) return _sharp;
   try {
     _sharp = (await import("sharp")).default;
+    log.info("sharp loaded successfully");
     return _sharp;
-  } catch {
-    log.warn("sharp not available — thumbnails disabled");
+  } catch (err) {
+    log.warn("sharp not available — thumbnails disabled:", (err as Error).message);
     _sharp = false;
     return null;
   }
@@ -64,7 +65,8 @@ export async function getThumbnail(bucketId: string, filePath: string): Promise<
     await Bun.write(tp, thumb);
 
     return thumb;
-  } catch {
+  } catch (err) {
+    log.warn(`Thumbnail generation failed for ${filePath}:`, (err as Error).message);
     return null;
   }
 }
