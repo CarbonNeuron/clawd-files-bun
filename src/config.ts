@@ -5,6 +5,7 @@ export const config = {
   baseUrl: process.env.BASE_URL ?? "http://localhost:5109",
   maxRenderSize: Number(process.env.MAX_RENDER_SIZE ?? 2 * 1024 * 1024),
   cleanupIntervalMs: Number(process.env.CLEANUP_INTERVAL_MS ?? 3_600_000),
+  commitHash: process.env.COMMIT_HASH ?? "dev",
 } as const;
 
 export const dbPath = `${config.dataDir}/clawd.db`;

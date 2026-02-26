@@ -1,6 +1,8 @@
 FROM oven/bun:latest AS build
 WORKDIR /app
 
+ARG COMMIT_HASH=dev
+
 COPY package.json bun.lock ./
 RUN bun install --frozen-lockfile
 
@@ -28,6 +30,8 @@ COPY --from=build /app/src/fonts /app/src/fonts
 
 RUN mkdir -p /data
 
+ARG COMMIT_HASH=dev
+ENV COMMIT_HASH=${COMMIT_HASH}
 ENV DATA_DIR=/data
 ENV PORT=5109
 EXPOSE 5109

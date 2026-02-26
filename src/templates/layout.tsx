@@ -38,7 +38,7 @@ export function layout({ title, content, scripts, head }: LayoutProps): string {
           <Raw html={content} />
         </main>
         <footer class={layoutStyles.footer}>
-          <div class={baseStyles.container}>ClawdFiles v4 &mdash; {Bun.escapeHTML(config.baseUrl)}</div>
+          <div class={baseStyles.container}>ClawdFiles v4 &mdash; {Bun.escapeHTML(config.baseUrl)}{config.commitHash !== "dev" ? ` · commit ${config.commitHash.slice(0, 7)}` : ""}</div>
         </footer>
         {scripts ? <Raw html={scripts} /> : null}
       </body>
